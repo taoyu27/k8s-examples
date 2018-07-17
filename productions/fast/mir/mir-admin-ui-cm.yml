@@ -1,0 +1,114 @@
+apiVersion: v1
+data:
+  mir-admin-ui.conf: |
+    server {
+        listen       80;
+        index  index.html index.htm;
+        client_max_body_size 1200M;
+        error_page   500 502 503 504  /50x.html;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        location / {
+            alias   /usr/share/nginx/html/mir-admin-ui/;
+            index  index.html index.htm;
+            try_files $uri $uri/ /index.html =404;
+        }
+        
+        location /fast {
+            alias   /usr/share/nginx/html/mir-admin-ui/;
+            index  index.html index.htm;
+            try_files $uri $uri/ /index.html =404;
+        }
+
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+
+        location /one-upms-api {
+            proxy_pass   http://one-route-svc.fast-onex:8080/one-upms-api;
+            index  index.html index.htm;
+        }
+
+        location /one-oss-api {
+            proxy_pass   http://one-oss-api-svc.fast-onex:8080/;
+            index  index.html index.htm;
+        }
+
+        location /one-config {
+            proxy_pass   http://one-route-svc.fast-onex:8080/one-config;
+            index  index.html index.htm;
+        }
+
+        location /one-delivery {
+            proxy_pass   http://one-route-svc.fast-onex:8080/one-delivery;
+            index  index.html index.htm;
+        }
+
+        location /one-logging-api {
+            proxy_pass   http://one-route-svc.fast-onex:8080/one-logging-api;
+            index  index.html index.htm;
+        }
+
+        location /mir-image-api {
+            proxy_pass http://one-route-svc.fast-onex:8080/mir-image-api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+        }
+
+        location /mir-blueprint-api {
+            proxy_pass http://one-route-svc.fast-onex:8080/mir-blueprint-api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+        }
+
+        location /mir-application-api {
+            proxy_pass http://one-route-svc.fast-onex:8080/mir-application-api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+        }
+
+        location /mir-access-api {
+            proxy_pass http://one-route-svc.fast-onex:8080/mir-access-api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+        }
+
+        location /mir-namespace-api {
+            proxy_pass http://one-route-svc.fast-onex:8080/mir-namespace-api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+        }
+
+        location /mir-storage-api {
+            proxy_pass http://one-route-svc.fast-onex:8080/mir-storage-api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+        }
+
+        location /zuul {
+            proxy_pass http://one-route-svc.fast-onex:8080/zuul;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+        }
+    }
+kind: ConfigMap
+metadata:
+  name: mir-admin-ui-conf-cm
+  namespace: fast-mir

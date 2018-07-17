@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one-logging-api-deployment
+  labels:
+   app: one-logging-api-deployment
+  namespace: fast-onex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-logging-api
+  template:
+    metadata:
+      labels:
+        app: one-logging-api
+    spec:
+      containers:
+      - name: one-logging-api
+        image: hub.chinacloud.com/fast-onex/milestone-one-logging-api:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: one-logging-conf
+          mountPath: /apps/one-logging-api.conf
+          subPath: onex-conf.conf
+      volumes:
+        - name: one-logging-conf
+          configMap:
+            name: onex-conf-cm

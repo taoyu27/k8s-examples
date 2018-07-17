@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mir-blueprint-api-deployment
+  labels:
+   app: mir-blueprint-api-deployment
+  namespace: fast-mir
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mir-blueprint-api
+  template:
+    metadata:
+      labels:
+        app: mir-blueprint-api
+    spec:
+      containers:
+      - name: mir-blueprint-api
+        image: hub.chinacloud.com/fast-mir/milestone-mir-blueprint-api:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: mir-blueprint-api-conf
+          mountPath: /apps/mir-blueprint-api.conf
+          subPath: mir-conf.conf
+      volumes:
+        - name: mir-blueprint-api-conf
+          configMap:
+            name: mir-conf-cm

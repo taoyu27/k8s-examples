@@ -1,0 +1,140 @@
+﻿apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one-config-deployment
+  labels:
+   app: one-config-deployment
+  namespace: fast-onex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-config
+  template:
+    metadata:
+      labels:
+        app: one-config
+    spec:
+      containers:
+      - name: one-config
+        image: hub.chinacloud.com/fast-onex/milestone-one-config:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 100
+          periodSeconds: 60
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: application-yml-config
+          mountPath: /apps/config/application.yml
+          subPath:  application.yml
+        - name: one-config-conf
+          mountPath: /apps/one-config.conf
+          subPath: one-config.conf
+
+        # onex group's config
+        - name: one-delivery-yml-config
+          mountPath: /apps/config/one-delivery.yml
+          subPath: one-delivery.yml
+        - name: one-logging-api-yml-config
+          mountPath: /apps/config/one-logging-api.yml
+          subPath: one-logging-api.yml
+        - name: one-oss-api-yml-config
+          mountPath: /apps/config/one-oss-api.yml
+          subPath: one-oss-api.yml
+        - name: one-route-yml-config
+          mountPath: /apps/config/one-route.yml
+          subPath: one-route.yml
+        - name: one-task-scheduler-yml-config
+          mountPath: /apps/config/one-task-scheduler.yml
+          subPath: one-task-scheduler.yml
+        - name: one-upms-api-yml-config
+          mountPath: /apps/config/one-upms-api.yml
+          subPath: one-upms-api.yml
+
+        # mir group's config
+        - name: mir-application-api-yml-config
+          mountPath: /apps/config/mir-application-api.yml
+          subPath: mir-application-api.yml
+        - name: mir-blueprint-api-yml-config
+          mountPath: /apps/config/mir-blueprint-api.yml
+          subPath: mir-blueprint-api.yml
+        - name: mir-image-api-yml-config
+          mountPath: /apps/config/mir-image-api.yml
+          subPath: mir-image-api.yml
+        - name: mir-image-builder-api-yml-config
+          mountPath: /apps/config/mir-image-builder-api.yml
+          subPath: mir-image-builder-api.yml
+        - name: mir-k8s-api-yml-config
+          mountPath: /apps/config/mir-k8s-api.yml
+          subPath: mir-k8s-api.yml
+        - name: mir-namespace-api-yml-config
+          mountPath: /apps/config/mir-namespace-api.yml
+          subPath: mir-namespace-api.yml
+        - name: mir-storage-api-yml-config
+          mountPath: /apps/config/mir-storage-api.yml
+          subPath: mir-storage-api.yml
+
+        # wo group's config
+        - name: wo-api-yml-config
+          mountPath: /apps/config/wo-api.yml
+          subPath: wo-api.yml
+      volumes:
+        - name: application-yml-config
+          configMap:
+            name: one-config-application-yml-cm
+        - name: one-config-conf
+          configMap:
+            name: one-config-conf-cm
+
+        # onex group's config
+        - name: one-delivery-yml-config
+          configMap:
+            name: one-delivery-yml-cm
+        - name: one-logging-api-yml-config
+          configMap:
+            name: one-logging-api-yml-cm
+        - name: one-oss-api-yml-config
+          configMap:
+            name: one-oss-api-yml-cm
+        - name: one-route-yml-config
+          configMap:
+            name: one-route-yml-cm
+        - name: one-task-scheduler-yml-config
+          configMap:
+            name: one-task-scheduler-yml-cm
+        - name: one-upms-api-yml-config
+          configMap:
+            name: one-upms-api-yml-cm
+        
+        # mir group's config
+        - name: mir-application-api-yml-config
+          configMap:
+            name: mir-application-api-yml-cm
+        - name: mir-blueprint-api-yml-config
+          configMap:
+            name: mir-blueprint-api-yml-cm
+        - name: mir-image-api-yml-config
+          configMap:
+            name: mir-image-api-yml-cm
+        - name: mir-image-builder-api-yml-config
+          configMap:
+            name: mir-image-builder-api-yml-cm
+        - name: mir-k8s-api-yml-config
+          configMap:
+            name: mir-k8s-api-yml-cm
+        - name: mir-namespace-api-yml-config
+          configMap:
+            name: mir-namespace-api-yml-cm
+        - name: mir-storage-api-yml-config
+          configMap:
+            name: mir-storage-api-yml-cm
+
+        # wo group's config
+        - name: wo-api-yml-config
+          configMap:
+            name: wo-api-yml-cm

@@ -1,0 +1,73 @@
+知识准备：
+创建StatefulSet之前需准备的资源，而且对创建顺序有严格要求，创建顺序如下：
+1、Volume
+2、Persistent Volume
+3、Persistent Volume Claim
+4、Service
+5、StatefulSet
+本案例Volume基于ceph RBD来创建。
+
+kafka是一种典型的有状态集群服务。考虑到在集群异常或重启时，需保证每一个实例挂载的数据卷仍然是之前的数据卷，本案例采用StatefulSet进行发布。
+场景说明：
+    本案例部署3个kafka实例组成一个kafka集群。
+
+前提：
+   1.k8s集群环境运行正常；
+   2.下载kafka镜像：docker pull hub.chinacloud.com/common/kubernetes-kafka:latest
+   3. 底层创建数据卷
+   3.1 nfs文件系统（默认）             需为每个zookeeper节点建立一个专用的数据目录，比如例子中使用nfs目录为：/home/nfs/kfk/{kfkcluster1,kfkcluster2,kfkcluster3}，其中/home/nfs为nfs主目录，kfk为kafka特定创建的目录（选择，建议创建），kfkcluster1为第一个节点目录，kfkcluster2为第二个节点目录，kfkcluster3为第三个节点目录。
+   3.2 ceph分布式文件系统（backup-pv）
+   第一步：更新pv yaml文件(使用rbd pv yaml替换 nfs pv yaml)
+   cd /opt/example_kubernetes/catalog/kafka
+   mv kafka_nfs_pv.yaml backup-pv/
+   cp backup-pv/secrets.yaml ./
+   cp backup-pv/kafka_ceph_pv.yaml ./   
+   第二步：创建数据卷
+   创建3个rbd块，为kafka实例存放持久化数据使用
+   rbd create --size 50G kube/kafka-01 --image-feature layering
+   rbd create --size 50G kube/kafka-02 --image-feature layering
+   rbd create --size 50G kube/kafka-03 --image-feature layering
+   4.zookeeper集群已部署好，并且访问zookeeper集群的访问域名为：zookeeper-cs:2181（如果不同，请修改broker-config.yml文件）
+
+部署kafka集群步骤：
+    cd /opt/example_kubernetes/catalog/kafka
+    kubectl create -f kafka/
+	
+检查与使用：
+kubectl get pod,pv,pvc -o wide
+NAME                                  READY     STATUS    RESTARTS   AGE       IP            NODE
+po/kafka-0                            1/1       Running   0          13m       10.244.0.81   master.chinacloud.com
+po/kafka-1                            1/1       Running   0          13m       10.244.1.52   node2.chinacloud.com
+po/kafka-2                            1/1       Running   0          13m       10.244.2.95   node1.chinacloud.com
+
+NAME                     CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM                         STORAGECLASS   REASON    AGE
+pv/datadir-kafka-0       50Gi       RWO            Recycle          Bound     default/datadir-kafka-0                                3h
+pv/datadir-kafka-1       50Gi       RWO            Recycle          Bound     default/datadir-kafka-1                                3h
+pv/datadir-kafka-2       50Gi       RWO            Recycle          Bound     default/datadir-kafka-2                                3h
+
+NAME                      STATUS    VOLUME                CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+pvc/datadir-kafka-0       Bound     datadir-kafka-0       50Gi       RWO                           3h
+pvc/datadir-kafka-1       Bound     datadir-kafka-1       50Gi       RWO                           3h
+pvc/datadir-kafka-2       Bound     datadir-kafka-2       50Gi       RWO                           3h
+
+NAME           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)             AGE
+bootstrap      ClusterIP   10.3.0.227   <none>        9092/TCP            10m
+broker         ClusterIP   None         <none>        9092/TCP            10m
+outside-0      NodePort    10.3.0.141   <none>        32400:32400/TCP     4s
+outside-1      NodePort    10.3.0.142   <none>        32401:32401/TCP     4s
+outside-2      NodePort    10.3.0.252   <none>        32402:32402/TCP     4s
+
+删除kafka集群步骤：
+    cd /opt/example_kubernetes/catalog/kafka
+	kubectl delete -f kafka/
+
+使用：
+进入kafka-0对应的容器：
+创建topic：
+/opt/kafka/bin/kafka-topics.sh --create --zookeeper zookeeper-cs:2181 --replication-factor 2 --partitions 3 --topic 3test
+查询：
+/opt/kafka/bin/kafka-topics.sh --list --zookeeper zookeeper-cs:2181
+结果中显示3test则预示kafak集群搭建成功。
+
+参考链接：https://github.com/Yolean/kubernetes-kafka 分支：1.8-manifests
+

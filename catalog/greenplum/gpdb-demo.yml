@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpdb
+  labels:
+    app: gpdb-k8s
+spec:
+  type: NodePort
+  ports:
+  - nodePort: 19514
+    port: 5432
+    name: gpdb
+  selector:
+    app: gpdb-k8s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpdb-k8s
+  namespace: default
+  labels:
+    k8s-app: gpdb-k8s
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 10%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      k8s-app: gpdb-k8s
+  template:
+    metadata:
+      labels:
+        k8s-app: gpdb-k8s
+    spec:
+      containers:
+      - name: gpdb
+        securityContext:
+          privileged: true
+        image: hub.chinacloud.com/catalog/gpdb:5.5
+        ports:
+        - containerPort: 5432
+        readinessProbe:
+          tcpSocket:
+            port: 22
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 22
+          initialDelaySeconds: 15
+          periodSeconds: 20

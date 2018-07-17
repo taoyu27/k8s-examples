@@ -1,0 +1,161 @@
+使用K8S来部署rabbitmq 集群
+
+1、使用镜像 Dockerfile、位置以及下载方法：
+Dockerfile
+FROM rabbitmq:3.6.12
+ENV RABBITMQ_USE_LONGNAME=true \
+    AUTOCLUSTER_LOG_LEVEL=debug \
+    AUTOCLUSTER_CLEANUP=true \
+    CLEANUP_INTERVAL=60 \
+    CLEANUP_WARN_ONLY=false \
+    AUTOCLUSTER_TYPE=k8s \
+    LANG=en_US.UTF-8
+ADD plugins/*.ez /plugins/
+RUN rabbitmq-plugins enable autocluster --offline
+RUN rabbitmq-plugins enable --offline rabbitmq_management
+
+已经打好的镜像  位置：
+kubernetes-rabbitmq-autocluster 3.6.12：
+  docker pull 172.16.70.166/catalog/kubernetes-rabbitmq-autocluster:3.6.12
+
+2、部署前置条件：
+
+  a、k8s 以及 docker源已经部署好，并且正常运行。
+3、部署：
+ a、 首先在k8s 上建立rabbitmq的访问控制文件Secret： erlang.cookie
+
+erlang.cookie
+echo $(openssl rand -base64 32) > erlang.cookie
+kubectl -n default create secret generic erlang.cookie --from-file=erlang.cookie
+b、通过  rabbitmq-deploy.yaml  建立rabbitmq的pod
+rabbitmq-deploy.yaml
+[root@node2 rabbitmq]# cat rabbitmq-deploy.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: default
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: 172.16.70.166/catalog/kubernetes-rabbitmq-autocluster:3.6.12
+        ports:
+          - containerPort: 5672
+            name: port-5672
+          - containerPort: 4369
+            name: port-4369
+          - containerPort: 5671
+            name: port-5671
+          - containerPort: 15672
+            name: port-15672
+          - containerPort: 25672
+            name: port-25672
+        env:
+          - name: HOSTNAME
+            valueFrom:
+             fieldRef:
+              fieldPath: status.podIP
+          - name: MY_POD_IP
+            valueFrom:
+             fieldRef:
+              fieldPath: status.podIP
+          - name: AUTOCLUSTER_CLEANUP
+            value: "true"
+          - name: CLEANUP_INTERVAL
+            value: "60"
+          - name: CLEANUP_WARN_ONLY
+            value: "false"
+          # start.sh will store this value to a proper location in filesystem
+          - name: RABBITMQ_ERLANG_COOKIE
+            valueFrom:
+             secretKeyRef:
+              name: erlang.cookie
+              key: erlang.cookie
+
+
+[root@node2 rabbitmq]# kubectl create -f rabbitmq-deploy.yaml
+c、通过rabbitmq-svc.yaml建立service：
+rabbitmq-svc.yaml
+[root@node2 rabbitmq]# cat rabbitmq-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rabbitmq
+  name: rabbitmq
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+  - nodePort: 32672
+    port: 5672
+    name: port-5672
+    protocol: TCP
+    targetPort: 5672
+  - port: 4369
+    name: port-4369
+    protocol: TCP
+    targetPort: 4369
+  - nodePort: 32673
+    port: 5671
+    name: port-5671
+    protocol: TCP
+    targetPort: 5671
+  - nodePort: 32674
+    port: 15672
+    name: port-15672
+    protocol: TCP
+    targetPort: 15672
+  - nodePort: 32675
+    port: 25672
+    name: port-25672
+    protocol: TCP
+    targetPort: 25672
+  selector:
+    app: rabbitmq
+
+[root@node2 rabbitmq]# kubectl create -f rabbitmq-svc.yaml
+
+4、检查 与 登陆 使用
+check
+[root@node2 rabbitmq]# kubectl get svc,pv,pvc,pod  -o wide
+NAME              TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                                                                        AGE       SELECTOR
+svc/etcd-client   ClusterIP   10.3.0.189   <none>        2379/TCP                                                                       6d        app=etcd
+svc/etcd0         ClusterIP   10.3.0.163   <none>        2379/TCP,2380/TCP                                                              6d        etcd_node=etcd0
+svc/etcd1         ClusterIP   10.3.0.117   <none>        2379/TCP,2380/TCP                                                              6d        etcd_node=etcd1
+svc/etcd2         ClusterIP   10.3.0.84    <none>        2379/TCP,2380/TCP                                                              6d        etcd_node=etcd2
+svc/galera-ss     NodePort    10.3.0.118   <none>        3306:30000/TCP                                                                 6d        app=galera-ss
+svc/kubernetes    ClusterIP   10.3.0.1     <none>        443/TCP                                                                        6d        <none>
+svc/rabbitmq      NodePort    10.3.0.229   <none>        5672:32672/TCP,4369:31472/TCP,5671:32673/TCP,15672:32674/TCP,25672:32675/TCP   1d        app=rabbitmq
+
+NAME                  CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM                               STORAGECLASS   REASON    AGE
+pv/datadir-galera-0   10Gi       RWO            Recycle          Bound     default/mysql-datadir-galera-ss-0                            6d
+pv/datadir-galera-1   10Gi       RWO            Recycle          Bound     default/mysql-datadir-galera-ss-1                            6d
+pv/datadir-galera-2   10Gi       RWO            Recycle          Bound     default/mysql-datadir-galera-ss-2                            6d
+
+NAME                            STATUS    VOLUME             CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+pvc/mysql-datadir-galera-ss-0   Bound     datadir-galera-0   10Gi       RWO                           6d
+pvc/mysql-datadir-galera-ss-1   Bound     datadir-galera-1   10Gi       RWO                           6d
+pvc/mysql-datadir-galera-ss-2   Bound     datadir-galera-2   10Gi       RWO                           6d
+
+NAME                           READY     STATUS    RESTARTS   AGE       IP           NODE
+po/etcd0                       1/1       Running   0          6d        10.2.3.66    172.16.60.123
+po/etcd1                       1/1       Running   0          6d        10.2.13.66   172.16.60.125
+po/etcd2                       1/1       Running   0          6d        10.2.14.2    172.16.60.124
+po/galera-ss-0                 1/1       Running   0          6d        10.2.6.131   172.16.60.126
+po/galera-ss-1                 1/1       Running   0          6d        10.2.14.3    172.16.60.124
+po/galera-ss-2                 1/1       Running   0          6d        10.2.3.67    172.16.60.123
+po/rabbitmq-68f49b896f-fzb75   1/1       Running   0          1d        10.2.6.132   172.16.60.126
+po/rabbitmq-68f49b896f-l2xpr   1/1       Running   0          1d        10.2.3.68    172.16.60.123
+po/rabbitmq-68f49b896f-lxfzw   1/1       Running   0          1d        10.2.14.4    172.16.60.124
+
+
+访问： 使用guest：guest登陆 http://172.16.60.122:19506

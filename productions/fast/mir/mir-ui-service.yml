@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mir-ui-svc
+  namespace: fast-mir
+  labels:
+    app: mir-ui-svc
+spec:
+  ports:
+    - name: mir-ui
+      port: 80
+      targetPort: 80
+      nodePort: 30211
+  selector:
+      app: mir-ui
+  type: NodePort

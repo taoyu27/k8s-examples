@@ -1,0 +1,20 @@
+apiVersion: v1
+data:
+  one-route.yml: |
+    keycloak:
+      config:
+        realm: fast
+        clientId: user-client
+        authServerUrl: http://172.16.74.151:30200/auth
+        secret: 6c2d0c3b-ac59-40c3-b8e7-96fb6138df74
+        sslRequired: external
+        resource: user-client
+    open: 
+      isPass: true
+      api: 
+        - /mir-application-api/api/v1/admin/alarm-records
+
+kind: ConfigMap
+metadata:
+  name: one-route-yml-cm
+  namespace: fast-onex

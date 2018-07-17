@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: filebeat-test
+  namespace: kube-system
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: filebeat-test
+    spec:
+      containers:
+      - image: hub.chinacloud.com/efk/filebeat:5.4.0
+        name: filebeat
+        volumeMounts:
+        - name: app-logs
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+        - name: filebeat-config
+          mountPath: /etc/filebeat/
+      volumes:
+      - name: app-logs
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: filebeat-config
+        configMap:
+          name: filebeat-config

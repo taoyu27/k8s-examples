@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hello-vol3
+  namespace: default
+  labels:
+    app: hello-vol3
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: hello-vol3
+    spec:
+      terminationGracePeriodSeconds: 60 
+      containers:
+      - name: hello-vol3
+        image: docker.io/dockercloud/hello-world:latest
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: PROFILE
+            value: "test"
+        ports:
+          - name: http
+            containerPort: 80
+        volumeMounts:
+          - name: rbd-pvc
+            mountPath: "/mnt"
+      volumes:
+        - name: rbd-pvc
+          persistentVolumeClaim:
+            claimName: claim2

@@ -1,0 +1,11 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: claim2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: rbd2
+  resources:
+    requests:
+      storage: 1Gi

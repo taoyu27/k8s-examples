@@ -1,0 +1,40 @@
+apiVersion: v1
+data:
+  onex-db-init.sql: |
+    -- fast_one_config database defination
+    DROP DATABASE IF EXISTS  `fast_one_config`;
+    CREATE SCHEMA `fast_one_config` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_one_config.* to config@'%' IDENTIFIED BY '123456';
+
+
+    -- fast_one_delivery database defination
+    DROP DATABASE IF EXISTS  `fast_one_delivery`;
+    CREATE SCHEMA `fast_one_delivery` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_one_delivery.* to delivery@'%' IDENTIFIED BY '123456';
+
+
+    -- fast_one_logging database defination
+    DROP DATABASE IF EXISTS  `fast_one_logging`;
+    CREATE SCHEMA `fast_one_logging` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_one_logging.* to logging@'%' IDENTIFIED BY '123456';
+
+    -- fast_one_oss database defination
+    DROP DATABASE IF EXISTS  `fast_one_oss`;
+    CREATE SCHEMA `fast_one_oss` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_one_oss.* to oss@'%' IDENTIFIED BY '123456';
+
+    -- fast_one_task_scheduler database defination
+    DROP DATABASE IF EXISTS  `fast_one_task_scheduler`;
+    CREATE SCHEMA `fast_one_task_scheduler` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_one_task_scheduler.* to scheduler@'%' IDENTIFIED BY '123456';
+
+    FLUSH PRIVILEGES;
+kind: ConfigMap
+metadata:
+  name: onex-db-init-cm
+  namespace: fast-common

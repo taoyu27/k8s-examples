@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: one-registry-2-svc
+  namespace: fast-onex
+  labels:
+    app: one-registry-2-svc
+spec:
+  ports:
+    - name: tcp-18087
+      port: 18087
+      targetPort: 18087
+      nodePort: 30208
+  selector:
+      app: one-registry-2
+  type: NodePort

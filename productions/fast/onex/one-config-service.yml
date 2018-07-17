@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: one-config-svc
+  namespace: fast-onex
+  labels:
+    app: one-config-svc
+spec:
+  ports:
+    - name: tcp-8888
+      port: 8888
+      targetPort: 8888
+      nodePort: 30206
+  selector:
+      app: one-config
+  type: NodePort

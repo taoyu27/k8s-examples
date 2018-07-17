@@ -1,0 +1,14 @@
+知识准备：
+根据自动化部署脚本，整个平台部署到基础引擎阶段（第三阶段）后，开始下面的工作。
+
+kube-router主要提供pod-to-pod、网络策略和svc功能，并支持通过–run-firewall, –run-router, –run-service-proxy有选择地只启用kube-router所需的功能。
+场景说明：
+    本案例使用kube-router同时作为k8s集群的pod-to-pod、网络策略和svc网络。
+
+前提：
+   1.k8s集群环境运行正常；
+   2.下载kube-router镜像：
+      docker pull hub.chinacloud.com/common/kube-router:latest
+      docker pull hub.chinacloud.com/common/busybox:latest 
+   3.安装步骤及功能验证详见：http://172.16.60.13:8090/display/XTZ/kube-router
+

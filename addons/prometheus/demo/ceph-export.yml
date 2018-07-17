@@ -1,0 +1,49 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ceph-exporter
+  labels:
+    app: ceph-exporter
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ceph-exporter
+    spec:
+      containers:
+        - name: ceph-exporter
+          image: hub.chinacloud.com/prometheus/ceph_export:1.0.1
+          ports:
+            - containerPort: 9128
+              hostPort: 9128
+              name: scrape
+          volumeMounts:
+            - name: ceph-conf
+              mountPath: /etc/ceph/
+      hostNetwork: true
+      hostPID: true
+      volumes:
+      - name: ceph-conf
+        configMap:
+          name: ceph-server-conf
+#      - hostPath:
+#          path: /etc/ceph
+#        name: ceph-conf
+
+--- 
+apiVersion: v1 
+kind: Service 
+metadata: 
+  labels: 
+    app: ceph-exporter 
+  name: ceph-exporter 
+spec: 
+  ports: 
+  - name: web 
+    port: 9128 
+    protocol: TCP 
+    targetPort: 9128 
+  selector: 
+    app: ceph-exporter

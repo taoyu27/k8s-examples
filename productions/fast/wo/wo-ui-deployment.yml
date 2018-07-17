@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wo-ui-deployment
+  labels:
+   app: wo-ui-deployment
+  namespace: fast-wo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wo-ui
+  template:
+    metadata:
+      labels:
+        app: wo-ui
+    spec:
+      containers:
+      - name: wo-ui
+        image: hub.chinacloud.com/fast-wo/milestone-wo-ui:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /fast/
+            port: 80
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 80
+        env:
+         - name: KEYCLOAK_REALM
+           value: fast
+         - name: KEYCLOAK_AUTH_SERVER_URl
+           value: http://172.16.74.151:30200/auth
+         - name: KEYCLOAK_RESOURCE
+           value: user-client
+         - name: KEYCLOAK_SECRET
+           value: 6c2d0c3b-ac59-40c3-b8e7-96fb6138df74
+        volumeMounts:
+        - name: wo-ui-conf
+          mountPath: /etc/nginx/conf.d/wo-ui.conf
+          subPath:  wo-ui.conf
+      volumes:
+        - name: wo-ui-conf
+          configMap:
+            name: wo-ui-cm

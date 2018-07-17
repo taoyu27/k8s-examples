@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: wo-admin-ui-svc
+  namespace: fast-wo
+  labels:
+    app: wo-admin-ui-svc
+spec:
+  ports:
+    - name: wo-admin-ui
+      port: 80
+      targetPort: 80
+      nodePort: 30212
+  selector:
+      app: wo-admin-ui
+  type: NodePort

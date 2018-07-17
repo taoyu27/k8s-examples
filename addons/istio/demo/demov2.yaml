@@ -1,0 +1,53 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demov2
+  namespace: default
+  labels:
+    app: demo
+    version: v2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo
+        version: v2
+    spec:
+      containers:
+      - name: demov2
+        image: hub.chinacloud.com/library/hello-world:1.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe: 
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          #initialDelaySeconds: 60 
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe: 
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 30 
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2048Mi
+          limits:
+            cpu: 500m
+            memory: 2048Mi
+        env:
+          - name: PROFILE
+            value: "test"
+        ports:
+          - name: http
+            containerPort: 80
+          - name: https
+            containerPort: 443

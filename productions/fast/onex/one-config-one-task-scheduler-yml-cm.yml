@@ -1,0 +1,66 @@
+apiVersion: v1
+data:
+  one-task-scheduler.yml  : |
+    task:
+      cluster-name: fast_v3_0
+      registry-address: zookeeper://zookeeper-svc.fast-common:2181
+      node-group: one-task-scheduler
+      jdbc.url: jdbc:mysql://mysql-svc.fast-common:3306/fast_one_task_scheduler?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false
+      jdbc.username: scheduler
+      jdbc.password: 123456
+
+    lts:
+      jobtracker:
+        cluster-name: ${task.cluster-name}
+        listen-port: 35001
+        registry-address: ${task.registry-address}
+        configs:
+          job:
+            logger: mysql
+            queue: mysql
+          jdbc.url: ${task.jdbc.url}
+          jdbc.username: ${task.jdbc.username}
+          jdbc.password: ${task.jdbc.password}
+      tasktracker:
+        cluster-name: ${task.cluster-name}
+        registry-address: ${task.registry-address}
+        node-group: ${task.node-group}
+        dispatch-runner:
+          enable: true
+          shard-value: taskType
+
+      jobclient:
+        cluster-name: ${task.cluster-name}
+        registry-address: ${task.registry-address}
+        node-group: ${task.node-group}
+        use-retry-client: true
+        configs.job.fail.store: mapdb
+
+
+    spring:
+      datasource:
+        platform: mysql
+        url: ${task.jdbc.url}
+        username: ${task.jdbc.username}
+        password: ${task.jdbc.password}
+        tomcat:
+          max-wait: 10000
+          max-active: ${parent.datasource.max-active}
+          test-on-borrow: true
+          initial-size: ${parent.datasource.initial-size}
+          validation-query: SELECT 1
+          remove-abandoned: ${parent.datasource.remove-abandoned}
+          remove-abandoned-timeout: ${parent.datasource.remove-abandoned-timeout}
+          min-evictable-idle-time-millis: ${parent.datasource.min-evictable-idle-time-millis}
+          time-between-eviction-runs-millis: ${parent.datasource.time-between-eviction-runs-millis}
+        driver-class-name: com.mysql.jdbc.Driver
+      jpa:
+        database-platform: org.hibernate.dialect.MySQL5Dialect
+        hibernate:
+          ddl-auto: none
+        show-sql: false
+
+kind: ConfigMap
+metadata:
+  name: one-task-scheduler-yml-cm
+  namespace: fast-onex

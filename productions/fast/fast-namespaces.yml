@@ -1,0 +1,42 @@
+#########################################################
+##  common service namespace   ##
+#########################################################
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fast-common
+
+---
+
+##########################################################
+##  onex service namespace
+##########################################################
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fast-onex
+
+---
+
+##########################################################
+##  mir service namespace
+##########################################################
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fast-mir
+
+---
+
+##########################################################
+##  whitehole service namespace
+##########################################################
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fast-wo
+

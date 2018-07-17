@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one-registry-2-deployment
+  labels:
+   app: one-registry-2-deployment
+  namespace: fast-onex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-registry-2
+  template:
+    metadata:
+      labels:
+        app: one-registry-2
+    spec:
+      containers:
+      - name: one-registry-2
+        image: hub.chinacloud.com/fast-onex/milestone-one-registry:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 18087
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 18087
+        env:
+        - name: cluster
+          value: http://one-registry-1-svc:18087/eureka/
+        volumeMounts:
+         - name: one-registry-conf
+           mountPath: /apps/one-registry.conf
+           subPath: one-registry.conf
+      volumes:
+        - name: one-registry-conf
+          configMap:
+            name: one-registry-cm

@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wo-api-deployment
+  labels:
+   app: wo-api-deployment
+  namespace: fast-wo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wo-api
+  template:
+    metadata:
+      labels:
+        app: wo-api
+    spec:
+      containers:
+      - name: wo-api
+        image: hub.chinacloud.com/fast-wo/milestone-wo-api:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: wo-api-conf
+          mountPath: /apps/wo-api.conf
+          subPath: wo-conf.conf
+      volumes:
+        - name: wo-api-conf
+          configMap:
+            name: wo-conf-cm

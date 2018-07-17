@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rbd-provisioner-demo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: rbd-provisioner-demo
+    spec:
+      containers:
+      - name: rbd-provisioner
+        image: "hub.chinacloud.com/external_storage/rbd-provisioner:1.1"
+        args:
+        - -v
+        - "5"
+        env:
+        - name: PROVISIONER_NAME
+          value: ceph.com/rbd

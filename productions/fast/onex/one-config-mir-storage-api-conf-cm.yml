@@ -1,0 +1,42 @@
+apiVersion: v1
+data:
+ mir-storage-api.yml: |
+    #数据库相关信息
+    spring:
+      datasource:
+        url: jdbc:mysql://mysql-svc.fast-common:3306/fast_mir_storage?autoReconnect=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8
+        username: storage
+        password: 123456
+        driver-class-name: com.mysql.jdbc.Driver
+        tomcat:
+          max-wait: 10000
+          max-active: ${parent.datasource.max-active}
+          test-on-borrow: true
+          initial-size: ${parent.datasource.initial-size}
+          validation-query: SELECT 1
+          remove-abandoned: ${parent.datasource.remove-abandoned}
+          remove-abandoned-timeout: ${parent.datasource.remove-abandoned-timeout}
+          min-evictable-idle-time-millis: ${parent.datasource.min-evictable-idle-time-millis}
+          time-between-eviction-runs-millis: ${parent.datasource.time-between-eviction-runs-millis}
+      jpa:
+        show-sql: false
+        hibernate:
+          ddl-auto: none
+      jackson:
+        serialization:
+          indent_output: true
+
+    #延时任务
+    task:
+      delayed:
+        createVolume: 600000      #创建数据卷检查的延时任务,单位为毫秒
+
+    #监控prometheus的URL
+    monitor:
+      prometheus:
+        url: http://172.16.74.151:30000
+
+kind: ConfigMap
+metadata:
+  name: mir-storage-api-yml-cm
+  namespace: fast-onex

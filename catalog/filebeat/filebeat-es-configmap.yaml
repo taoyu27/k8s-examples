@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  namespace: kube-system
+data:
+  filebeat.yml: |
+    filebeat.prospectors:
+    - input_type: log
+      paths:
+        - "/var/log/*/*.log"
+      document_type: system_log
+    - input_type: log
+      paths:
+        - "/var/log/containers/*"
+      document_type: pod_log
+    output.elasticsearch:
+      hosts: ["elasticsearch-logging:9200"]
+      index: "filebeat-docker-test"

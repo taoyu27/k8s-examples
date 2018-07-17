@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  one-config.conf: |
+    RUN_ARGS="--eurekaUrl=http://one-registry-1-svc.fast-onex:18087/eureka/,http://one-registry-2-svc.fast-onex:18087/eureka/ --dbIp=mysql-svc.fast-common --dbPort=3306 --dbName=fast_one_config --dbUser=config --dbPassword=123456"
+    JAVA_OPTS="-Xmx256M -Xms256M"
+kind: ConfigMap
+metadata:
+  name: one-config-conf-cm
+  namespace: fast-onex

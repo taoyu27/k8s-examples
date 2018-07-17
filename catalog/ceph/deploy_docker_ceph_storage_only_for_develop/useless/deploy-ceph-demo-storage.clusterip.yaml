@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: deploy-ceph-demo-storage
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: deploy-ceph-demo-storage
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: node1.cloud
+      #volumes:
+      #  - name: etc-ceph
+      #    hostPath:
+      #      path: /etc/ceph
+      containers:
+      - name: deploy-ceph-demo-storage
+        image: "hub.chinacloud.com/library/ceph/demo:tag-build-stable-2.2.11-jewel-centos-7"
+        env:
+        - name: MON_IP
+          valueFrom: 
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CEPH_PUBLIC_NETWORK
+          value: "0.0.0.0/0"
+        ports:
+          - containerPort: 6789
+        #volumeMounts:
+        #  - name: etc-ceph
+        #    mountPath: /etc/ceph
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ceph-demo-storage-svc
+spec:
+  selector:
+    app: deploy-ceph-demo-storage
+  ports:
+  - protocol: TCP
+    port: 6789
+    targetPort: 6789

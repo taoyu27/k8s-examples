@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: keycloak-deployment
+  labels:
+    app: keycloak
+  namespace: fast-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: hub.chinacloud.com/fast-common/keycloak:3.4.0.Final
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /auth
+              port: 8080
+            initialDelaySeconds: 50
+            periodSeconds: 30
+          ports:
+            - name: keycloak
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: POSTGRES_PORT_5432_TCP_ADDR
+              value: "postgres-svc"
+            - name: POSTGRES_DATABASE
+              value: "keycloak"
+            - name: POSTGRES_USER
+              value: "keycloak"
+            - name: POSTGRES_PASSWORD
+              value: "keycloak"
+            - name: KEYCLOAK_USER
+              value: "keycloak"
+            - name: KEYCLOAK_PASSWORD
+              value: "keycloak"
+          # resources:
+          #   limits:
+          #     memory: 512Mi
+          #   requests:
+          #     memory: 256Mi

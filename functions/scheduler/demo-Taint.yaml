@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demons
+  namespace: default
+  labels:
+    app: demons
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: demons
+        version: v1
+    spec:
+      tolerations:
+      - key: "fastComponent"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      containers:
+      - name: demons
+        image: hub.chinacloud.com/library/hello-world:1.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe: 
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          #initialDelaySeconds: 60 
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe: 
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          #initialDelaySeconds: 30 
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2048Mi
+          limits:
+            cpu: 500m
+            memory: 2048Mi
+        env:
+          - name: PROFILE
+            value: "test"
+        ports:
+          - name: http
+            containerPort: 80
+          - name: https
+            containerPort: 443
+      nodeSelector:
+        www.chinacloud.com.cn/role: "manage"

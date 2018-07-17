@@ -1,0 +1,189 @@
+# This YAML file contains all API objects that are necessary to run external
+# CSI attacher.
+#
+# In production, this needs to be in separate files, e.g. service account and
+# role and role binding needs to be created once, while stateful set may
+# require some tuning.
+#
+# In addition, hostpath CSI driver is hardcoded as the CSI driver.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: csi-hostpath
+
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-hostpath-role
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["create", "delete", "get", "list", "watch", "update"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["get", "list", "watch", "update"]
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-hostpath-role
+subjects:
+  - kind: ServiceAccount
+    name: csi-hostpath
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: csi-hostpath-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: csi-hostpath
+  labels:
+    app: csi-hostpath
+spec:
+  selector:
+    app: csi-hostpath
+  ports:
+    - name: dummy
+      port: 12345
+
+---
+kind: StatefulSet
+apiVersion: apps/v1beta1
+metadata:
+  name: csi-hostpath-ext
+spec:
+  serviceName: "csi-hostpath"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: csi-hostpath-driver
+    spec:
+      serviceAccount: csi-hostpath
+      containers:
+        - name: csi-external-provisioner
+          imagePullPolicy: Always
+          image: hub.chinacloud.com/k8scsi/csi-provisioner:0.1
+          args:
+            - "--v=5"
+            - "--provisioner=csi-hostpath"
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+        - name: csi-attacher
+          imagePullPolicy: Always
+          image: hub.chinacloud.com/k8scsi/csi-attacher:0.1
+          args:
+            - "--v=5"
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+      volumes:
+        - name: socket-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/csi-hostpath
+            type: DirectoryOrCreate
+        - name: mountpoint-dir
+          hostPath:
+            path: /var/lib/kubelet/pods
+            type: Directory
+
+---
+
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: csi-hostpath-ds
+spec:
+  selector:
+    matchLabels:
+      app: csi-hostpath-driver
+  #serviceName: csi-hostpath
+  template:
+    metadata:
+      labels:
+        app: csi-hostpath-driver
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      serviceAccount: csi-hostpath
+      containers:
+        - name: csi-driver-registrar
+          imagePullPolicy: Always
+          image: hub.chinacloud.com/k8scsi/driver-registrar:latest
+          args:
+            - "--v=5"
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+        - name: hostpath-driver
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+          imagePullPolicy: Always
+          image: hub.chinacloud.com/k8scsi/hostpathplugin:latest
+          args:
+            - "--v=5"
+            - "--endpoint=$(CSI_ENDPOINT)"
+            - "--nodeid=$(KUBE_NODE_NAME)"
+          env:
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+            - name: mountpoint-dir
+              mountPath: /var/lib/kubelet/pods
+              # mountPropagation: "Bidirectional"
+      volumes:
+        - name: socket-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/csi-hostpath
+            type: DirectoryOrCreate
+        - name: mountpoint-dir
+          hostPath:
+            path: /var/lib/kubelet/pods
+            type: Directory
+
+

@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one-task-scheduler-deployment
+  labels:
+   app: one-task-scheduler-deployment
+  namespace: fast-onex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-task-scheduler
+  template:
+    metadata:
+      labels:
+        app: one-task-scheduler
+    spec:
+      containers:
+      - name: one-task-scheduler
+        image: hub.chinacloud.com/fast-onex/milestone-one-task-scheduler:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: one-task-scheduler-conf
+          mountPath: /apps/one-task-scheduler.conf
+          subPath: onex-conf.conf
+      volumes:
+        - name: one-task-scheduler-conf
+          configMap:
+            name: onex-conf-cm

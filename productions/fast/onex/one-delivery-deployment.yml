@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one-delivery-deployment
+  labels:
+   app: one-delivery-deployment
+  namespace: fast-onex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-delivery
+  template:
+    metadata:
+      labels:
+        app: one-delivery
+    spec:
+      containers:
+      - name: one-delivery
+        image:  hub.chinacloud.com/fast-onex/milestone-one-delivery:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: one-delivery-conf
+          mountPath: /apps/one-delivery.conf
+          subPath: onex-conf.conf
+      volumes:
+        - name: one-delivery-conf
+          configMap:
+            name: onex-conf-cm

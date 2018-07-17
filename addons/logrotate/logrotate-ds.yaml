@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: logrotate
+  namespace: kube-system
+spec:
+  template:
+    metadata:
+      labels:
+        app: logging
+        id: logrotate
+      name: logrotate
+    spec:
+      tolerations:
+      - key: "fastComponent"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      containers:
+      - name: logrotate
+        image: hub.chinacloud.com/addons/logrotate:1.2
+        securityContext:
+          privileged: true
+        volumeMounts:
+         - name: containers
+           mountPath: /var/lib/docker/containers
+         - name: varlog
+           mountPath: /var/log/pods
+         - name: logs
+           mountPath: /var/log/containers
+        env:
+        - name: LOGS_DIRECTORIES
+          value: "/var/lib/docker/containers /var/log/pods"
+        - name: LOGROTATE_INTERVAL
+          value: "daily"
+        - name: LOGROTATE_OLDDIR
+          value: "/var/log/containers"
+        - name: LOGROTATE_SIZE
+          value: "50M"
+        - name: LOGROTATE_COMPRESSION
+          value: "compress"
+        - name: LOGROTATE_COPIES
+          value: "10"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+      volumes:
+         - hostPath:
+             path: /var/lib/docker/containers
+           name: containers
+         - hostPath:
+             path: /var/log/pods
+           name: varlog
+         - hostPath:
+             path: /var/log/containers
+           name: logs

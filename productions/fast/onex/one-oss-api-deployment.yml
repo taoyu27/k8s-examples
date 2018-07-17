@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one-oss-api-deployment
+  labels:
+   app: one-oss-api-deployment
+  namespace: fast-onex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-oss-api
+  template:
+    metadata:
+      labels:
+        app: one-oss-api
+    spec:
+      containers:
+      - name: one-oss-api
+        image: hub.chinacloud.com/fast-onex/milestone-one-oss-api:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: one-oss-api-conf
+          mountPath: /apps/one-oss-api.conf
+          subPath: onex-conf.conf
+        - name: oss-dir
+          mountPath: /opt/server/one-oss/fileUpload
+      volumes:
+        - name: one-oss-api-conf
+          configMap:
+            name: onex-conf-cm
+        - name: oss-dir
+          persistentVolumeClaim:
+            claimName: one-oss-pvc

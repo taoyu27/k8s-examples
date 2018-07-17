@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mir-namespace-api-deployment
+  labels:
+   app: mir-namespace-api-deployment
+  namespace: fast-mir
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mir-namespace-api
+  template:
+    metadata:
+      labels:
+        app: mir-namespace-api
+    spec:
+      containers:
+      - name: mir-namespace-api
+        image: hub.chinacloud.com/fast-mir/milestone-mir-namespace-api:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: mir-namespace-api-conf
+          mountPath: /apps/mir-namespace-api.conf
+          subPath: mir-conf.conf
+      volumes:
+        - name: mir-namespace-api-conf
+          configMap:
+            name: mir-conf-cm

@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: one-route-svc
+  namespace: fast-onex
+  labels:
+    app: one-route-svc
+spec:
+  ports:
+    - name: one-route
+      port: 8080
+      targetPort: 8080
+      nodePort: 30209
+  selector:
+      app: one-route
+  type: NodePort

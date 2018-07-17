@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sleep
+  namespace: default
+  labels:
+    app: sleep
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sleep
+    spec:
+      containers:
+      - name: sleep
+        image: hub.chinacloud.com/library/curl:latest
+        args:
+        - sleep
+        - "999999"
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: http
+            containerPort: 80

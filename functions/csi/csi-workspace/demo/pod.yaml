@@ -1,0 +1,32 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: podpvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: csi-hostpath
+  resources:
+    requests:
+      storage: 1Mi
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-server
+spec:
+  nodeName: node2.ted
+  containers:
+   - name: web-server
+     image: hub.chinacloud.com/common/nginx:1.8.1
+     volumeMounts:
+       - mountPath: /var/lib/www/html
+         name: mypvc
+  volumes:
+   - name: mypvc
+     persistentVolumeClaim:
+       claimName: podpvc
+       readOnly: false
+

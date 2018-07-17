@@ -1,0 +1,96 @@
+apiVersion: v1
+data:
+  application.yml: |
+    ﻿#Actuator management path
+    #management.context-path: /admin
+
+    info.configuration: Read From Config Service application.yml
+    #Enabling actuator endpoints
+    #Enabling actuator endpoints
+    endpoints:
+      restart:
+        enabled: true
+      shutdown:
+        enabled: true
+      health:
+        sensitive: false
+    spring:
+      http:
+        multipart:
+          maxFileSize: 12000Mb
+          maxRequestSize: 1200Mb
+    # 据说这是通用配置，暂且把rabbitmq的配置加在这里了
+      rabbitmq:
+        host: rabbitmq-svc.fast-common
+        port: 5672
+        username: fast
+        password: fast
+        virtual-host: /
+
+    flyway:
+      locations: db/migration/${vendor:mysql}
+      sql-migration-prefix: V
+      sql-migration-separator: _
+      sql-migration-suffixes: .sql
+      enabled: true
+      out-of-order: true
+    k8s:      
+      resource:
+        tolerance: 1.0
+
+    feign:
+      client:
+        config:
+          one-oss-api:
+            connectTimeout: 600000
+            readTimeout: 600000
+
+    hystrix.command.default.execution.timeout.enabled: false
+    ribbon:
+      ConnectTimeout: 60000
+      ReadTimeout: 60000
+    server:
+      port: ${port:8080}
+      tomcat:
+        compression: on
+    keycloak:
+      url: http://keycloak-svc.fast-common:8080/auth
+    eureka:
+      instance:
+        # 续约更新时间间隔（默认30秒）
+        leaseRenewalIntervalInSeconds: 30
+        # 续约到期时间（默认90秒）
+        leaseExpirationDurationInSeconds: 90
+        preferIpAddress: true
+        metadataMap:
+          hostname: ${vcap.application.application_uris[0]}
+          instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${random.value:0000}}}
+      client:
+        healthcheck:
+          enabled: true
+        registerWithEureka: true
+        fetchRegistry: true
+
+    isValidatePermission: false
+
+    parent:
+      datasource:
+        min-idle: 1
+        max-idle: 2
+        max-active: 2
+        initial-size: 2
+        remove-abandoned: true
+        remove-abandoned-timeout: 60
+        min-evictable-idle-time-millis: 60000
+        time-between-eviction-runs-millis: 30000
+    harbor:
+      config:
+        username: admin
+        password: Harbor12345
+        protocol: http://
+        registry: hub.chinacloud.com
+
+kind: ConfigMap
+metadata:
+  name: one-config-application-yml-cm
+  namespace: fast-onex

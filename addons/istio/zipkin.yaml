@@ -1,0 +1,49 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zipkin
+  namespace: istio-system
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: zipkin
+    spec:
+      containers:
+      - name: zipkin
+        image: hub.chinacloud.com/istio/zipkin
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9411
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        resources:
+          limits:
+            memory: 1512Mi
+            cpu: 500m
+          requests:
+            cpu: 500m
+            memory: 1512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zipkin
+  namespace: istio-system
+spec:
+  ports:
+  - name: http
+    port: 9411
+    nodePort: 19521
+  selector:
+    app: zipkin
+  type: NodePort
+---

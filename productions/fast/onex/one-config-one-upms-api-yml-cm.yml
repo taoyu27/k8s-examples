@@ -1,0 +1,43 @@
+apiVersion: v1
+data:
+  one-upms-api.yml: |
+    keycloak:
+      authUrl: http://keycloak-svc.fast-common:8080/auth
+      events: LOGIN,LOGIN_ERROR,LOGOUT,LOGOUT_ERROR
+      admin:
+        realm: fast
+        clientId: admin-client
+        clientSecret: c10b49d3-1236-4c20-9d02-7e804fc4d642
+      user:
+        realm: fast
+        clientId: user-client
+        clientSecret: 6c2d0c3b-ac59-40c3-b8e7-96fb6138df74
+
+
+    spring:
+      datasource:
+        url: jdbc:postgresql://postgres-svc.fast-common:5432/keycloak
+        username: keycloak
+        password: keycloak
+        driver-class-name: org.postgresql.Driver
+        validation-query: SELECT 1
+        tomcat:
+          max-wait: 10000
+          max-active: ${parent.datasource.max-active}
+          test-on-borrow: true
+          initial-size: ${parent.datasource.initial-size}
+          validation-query: SELECT 1
+          remove-abandoned: ${parent.datasource.remove-abandoned}
+          remove-abandoned-timeout: ${parent.datasource.remove-abandoned-timeout}
+          min-evictable-idle-time-millis: ${parent.datasource.min-evictable-idle-time-millis}
+          time-between-eviction-runs-millis: ${parent.datasource.time-between-eviction-runs-millis}
+      jpa:
+        properties:
+          hibernate:
+            hbm2ddl:
+              auto: none    
+
+kind: ConfigMap
+metadata:
+  name: one-upms-api-yml-cm
+  namespace: fast-onex

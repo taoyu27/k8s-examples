@@ -1,0 +1,577 @@
+2、使用镜像 、位置以及下载方法：
+  mariadb 10.1
+ docker pull 172.16.70.166/catalog/mariadb:10.1.28
+  etcd   latest
+  docker pull 172.16.70.166/catalog/etcd:3.0.14
+3、部署前置条件：
+  a、k8s 以及 docker源已经部署好，并且正常运行。
+  b、如果后端使用NFS作为存储卷，请为每个mariadb节点建立一个专用的数据目录，比如例子中使用nfs目录为： /home/nfs/db/{db1,db2,db3}  db1为第一个节点目录， db2为第二个节点目录  db3 为第个节点目录。
+     如果后端使用ceph作为存储卷，则需要的ceph RBD数据卷已经建好。
+       ceph  建立卷命令： rbd create --size 100G ceph-imageXX --image-feature layering
+  c、在k8s的node节点安装好 ceph的客户端.
+4、部署：
+ a、建立mariadb的数据库 PersistentVolume（以下2选一）
+
+    A、使用 NFS：
+       nfs可以直接建立PersistentVolume
+       mariadb-nfs-pv.yml：
+
+       [root@node2 mariadb]# cat mariadb-nfs-pv.yml
+        apiVersion: v1
+        kind: PersistentVolume
+        metadata:
+          name: datadir-galera-0
+          labels:
+            app: galera-ss
+            podindex: "0"
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          capacity:
+            storage: 100Gi
+          nfs:
+            path: "/home/nfs/db/db1"
+            server: 172.16.74.101
+            readOnly: false
+          persistentVolumeReclaimPolicy: Recycle
+
+
+        ---
+
+        apiVersion: v1
+        kind: PersistentVolume
+        metadata:
+          name: datadir-galera-1
+          labels:
+            app: galera-ss
+            podindex: "1"
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          capacity:
+            storage: 100Gi
+          nfs:
+            path: "/home/nfs/db/db2"
+            server: 172.16.74.101
+            readOnly: false
+          persistentVolumeReclaimPolicy: Recycle
+        ---
+
+        apiVersion: v1
+        kind: PersistentVolume
+        metadata:
+          name: datadir-galera-2
+          labels:
+            app: galera-ss
+            podindex: "2"
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          capacity:
+            storage: 100Gi
+          nfs:
+            path: "/home/nfs/db/db3"
+            server: 172.16.74.101
+            readOnly: false
+          persistentVolumeReclaimPolicy: Recycle
+
+
+    B、使用 ceph RBD：
+       I、首先在k8s 上建立ceph的访问控制文件Secret
+         ceph-secret.yaml：
+
+            [root@node2 mariadb]#  grep key /etc/ceph/ceph.client.admin.keyring |awk '{printf "%s", $NF}'|base64
+                     
+                      QVFEL052QlpzVkZVRmhBQWtYUmtjMS8rcDJGRG0wajhHdUFKNGc9PQ==
+
+            [root@node2 mariadb]# cat ./backup-pv/ceph-secret.yaml
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: ceph-secret
+            type: "kubernetes.io/rbd"
+            data:
+              key: QVFEL052QlpzVkZVRmhBQWtYUmtjMS8rcDJGRG0wajhHdUFKNGc9PQ==
+
+            [root@node2 mariadb]# kubectl create -f ceph-secret.yaml
+
+       II、 建立ceph的  PersistentVolume
+
+
+             mariadb-ceph-pv.yml：
+
+             [root@node2 mariadb]# cat ./backup-pv/mariadb-ceph-pv.yml
+             apiVersion: v1
+             kind: PersistentVolume
+             metadata:
+               name: datadir-galera-0
+               labels:
+                 app: galera-ss
+                 podindex: "0"
+             spec:
+               accessModes:
+               - ReadWriteOnce
+               capacity:
+                 storage: 100Gi
+               rbd:
+                 monitors:
+                   - 172.16.71.109:6789
+                   - 172.16.71.110:6789
+                   - 172.16.71.111:6789
+                 pool: images-vol
+                 user: admin
+                 image: ceph-image04
+                 secretRef:
+                   name: ceph-secret
+                 fsType: ext4
+                 readOnly: false
+               persistentVolumeReclaimPolicy: Recycle
+
+
+             ---
+
+             apiVersion: v1
+             kind: PersistentVolume
+             metadata:
+               name: datadir-galera-1
+               labels:
+                 app: galera-ss
+                 podindex: "1"
+             spec:
+               accessModes:
+               - ReadWriteOnce
+               capacity:
+                 storage: 100Gi
+               rbd:
+                 monitors:
+                   - 172.16.71.109:6789
+                   - 172.16.71.110:6789
+                   - 172.16.71.111:6789
+                 pool: images-vol
+                 user: admin
+                 image: ceph-image02
+                 secretRef:
+                   name: ceph-secret
+                 fsType: ext4
+                 readOnly: false
+               persistentVolumeReclaimPolicy: Recycle
+
+             ---
+
+             apiVersion: v1
+             kind: PersistentVolume
+             metadata:
+               name: datadir-galera-2
+               labels:
+                 app: galera-ss
+                 podindex: "2"
+             spec:
+               accessModes:
+               - ReadWriteOnce
+               capacity:
+                 storage: 100Gi
+               rbd:
+                 monitors:
+                   - 172.16.71.109:6789
+                   - 172.16.71.110:6789
+                   - 172.16.71.111:6789
+                 pool: images-vol
+                 user: admin
+                 image: ceph-image03
+                 secretRef:
+                   name: ceph-secret
+                 fsType: ext4
+                 readOnly: false
+               persistentVolumeReclaimPolicy: Recycle
+
+             [root@node2 mariadb]# kubectl create -f mariadb-ceph-pv.yml
+
+
+b、建立 PersistentVolumeCliam
+
+PersistentVolumeCliam
+
+mariadb-pvc.yml
+[root@node2 mariadb]# cat mariadb-pvc.yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-datadir-galera-ss-0
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  selector:
+    matchLabels:
+      app: galera-ss
+      podindex: "0"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-datadir-galera-ss-1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  selector:
+    matchLabels:
+      app: galera-ss
+      podindex: "1"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-datadir-galera-ss-2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  selector:
+    matchLabels:
+      app: galera-ss
+      podindex: "2"
+
+
+[root@node2 mariadb]#  kubectl create -f mariadb-pvc.yml
+
+
+c、建立etcd集群
+etcd-cluster.yml
+[root@node2 mariadb]# cat etcd-cluster.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-client
+spec:
+  ports:
+  - name: etcd-client-port
+    port: 2379
+    protocol: TCP
+    targetPort: 2379
+  selector:
+    app: etcd
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: etcd
+    etcd_node: etcd0
+  name: etcd0
+spec:
+  containers:
+  - command:
+    - /usr/local/bin/etcd
+    - --name
+    - etcd0
+    - --initial-advertise-peer-urls
+    - http://etcd0:2380
+    - --listen-peer-urls
+    - http://0.0.0.0:2380
+    - --listen-client-urls
+    - http://0.0.0.0:2379
+    - --advertise-client-urls
+    - http://etcd0:2379
+    - --initial-cluster
+    - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+    - --initial-cluster-state
+    - new
+    image: 172.16.70.166/catalog/etcd:latest
+    name: etcd0
+    ports:
+    - containerPort: 2379
+      name: client
+      protocol: TCP
+    - containerPort: 2380
+      name: server
+      protocol: TCP
+  restartPolicy: Never
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    etcd_node: etcd0
+  name: etcd0
+spec:
+  ports:
+  - name: client
+    port: 2379
+    protocol: TCP
+    targetPort: 2379
+  - name: server
+    port: 2380
+    protocol: TCP
+    targetPort: 2380
+  selector:
+    etcd_node: etcd0
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: etcd
+    etcd_node: etcd1
+  name: etcd1
+spec:
+  containers:
+  - command:
+    - /usr/local/bin/etcd
+    - --name
+    - etcd1
+    - --initial-advertise-peer-urls
+    - http://etcd1:2380
+    - --listen-peer-urls
+    - http://0.0.0.0:2380
+    - --listen-client-urls
+    - http://0.0.0.0:2379
+    - --advertise-client-urls
+    - http://etcd1:2379
+    - --initial-cluster
+    - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+    - --initial-cluster-state
+    - new
+    image: 172.16.70.166/catalog/etcd:latest
+    name: etcd1
+    ports:
+    - containerPort: 2379
+      name: client
+      protocol: TCP
+    - containerPort: 2380
+      name: server
+      protocol: TCP
+  restartPolicy: Never
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    etcd_node: etcd1
+  name: etcd1
+spec:
+  ports:
+  - name: client
+    port: 2379
+    protocol: TCP
+    targetPort: 2379
+  - name: server
+    port: 2380
+    protocol: TCP
+    targetPort: 2380
+  selector:
+    etcd_node: etcd1
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: etcd
+    etcd_node: etcd2
+  name: etcd2
+spec:
+  containers:
+  - command:
+    - /usr/local/bin/etcd
+    - --name
+    - etcd2
+    - --initial-advertise-peer-urls
+    - http://etcd2:2380
+    - --listen-peer-urls
+    - http://0.0.0.0:2380
+    - --listen-client-urls
+    - http://0.0.0.0:2379
+    - --advertise-client-urls
+    - http://etcd2:2379
+    - --initial-cluster
+    - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+    - --initial-cluster-state
+    - new
+    image: 172.16.70.166/catalog/etcd:latest
+    name: etcd2
+    ports:
+    - containerPort: 2379
+      name: client
+      protocol: TCP
+    - containerPort: 2380
+      name: server
+      protocol: TCP
+  restartPolicy: Never
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    etcd_node: etcd2
+  name: etcd2
+spec:
+  ports:
+  - name: client
+    port: 2379
+    protocol: TCP
+    targetPort: 2379
+  - name: server
+    port: 2380
+    protocol: TCP
+    targetPort: 2380
+  selector:
+    etcd_node: etcd2
+
+
+[root@node2 mariadb]# kubectl create -f etcd-cluster.yml
+
+
+d、最后建立 Galera的3节点集群
+mariadb-ss.yml
+[root@node2 mariadb]# cat mariadb-ss.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: galera-ss
+  labels:
+    app: galera-ss
+spec:
+  type: NodePort
+  ports:
+    - nodePort: 30000
+      port: 3306
+      name: mysql
+#  clusterIP: None
+  selector:
+    app: galera-ss
+
+---
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: galera-ss
+spec:
+  serviceName: "galera-ss"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: galera-ss
+    spec:
+      containers:
+      - name: galera
+        image: 172.16.70.166/catalog/mariadb:10.1.28
+        ports:
+        - name: mysql
+          containerPort: 3306
+        env:
+        # kubectl create secret generic mysql-pass --from-file=password.txt
+        - name: MYSQL_ROOT_PASSWORD
+          value: chunacloudroot
+        - name: DISCOVERY_SERVICE
+          value: etcd-client:2379
+        - name: XTRABACKUP_PASSWORD
+          value: chunacloud
+        - name: CLUSTER_NAME
+          value: mariadb_galera_ss
+        - name: MYSQL_DATABASE
+          value: chinacloud
+        - name: MYSQL_USER
+          value: chinacloud
+        - name: MYSQL_PASSWORD
+          value: chinacloudpw
+        readinessProbe:
+          exec:
+            command:
+            - /healthcheck.sh
+            - --readiness
+          initialDelaySeconds: 120
+          periodSeconds: 1
+        livenessProbe:
+          exec:
+            command:
+            - /healthcheck.sh
+            - --liveness
+          initialDelaySeconds: 120
+          periodSeconds: 1
+        volumeMounts:
+        - name: mysql-datadir
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-datadir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+
+[root@node2 mariadb]#  kubectl create -f mariadb-ss.yml
+
+
+
+4、检查 与 登陆 使用
+check
+[root@node2 mariadb]# kubectl get svc,pv,pvc,pod  -o wide
+NAME              TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)             AGE       SELECTOR
+svc/etcd-client   ClusterIP   10.3.0.189   <none>        2379/TCP            3h        app=etcd
+svc/etcd0         ClusterIP   10.3.0.163   <none>        2379/TCP,2380/TCP   3h        etcd_node=etcd0
+svc/etcd1         ClusterIP   10.3.0.117   <none>        2379/TCP,2380/TCP   3h        etcd_node=etcd1
+svc/etcd2         ClusterIP   10.3.0.84    <none>        2379/TCP,2380/TCP   3h        etcd_node=etcd2
+svc/galera-ss     NodePort    10.3.0.118   <none>        3306:30000/TCP      45m       app=galera-ss
+svc/kubernetes    ClusterIP   10.3.0.1     <none>        443/TCP             5h        <none>
+
+NAME                  CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM                               STORAGECLASS   REASON    AGE
+pv/datadir-galera-0   10Gi       RWO            Recycle          Bound     default/mysql-datadir-galera-ss-0                            1h
+pv/datadir-galera-1   10Gi       RWO            Recycle          Bound     default/mysql-datadir-galera-ss-1                            1h
+pv/datadir-galera-2   10Gi       RWO            Recycle          Bound     default/mysql-datadir-galera-ss-2                            1h
+
+NAME                            STATUS    VOLUME             CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+pvc/mysql-datadir-galera-ss-0   Bound     datadir-galera-0   10Gi       RWO                           1h
+pvc/mysql-datadir-galera-ss-1   Bound     datadir-galera-1   10Gi       RWO                           1h
+pvc/mysql-datadir-galera-ss-2   Bound     datadir-galera-2   10Gi       RWO                           1h
+
+NAME             READY     STATUS    RESTARTS   AGE       IP           NODE
+po/etcd0         1/1       Running   0          3h        10.2.3.66    172.16.60.123
+po/etcd1         1/1       Running   0          3h        10.2.13.66   172.16.60.125
+po/etcd2         1/1       Running   0          3h        10.2.14.2    172.16.60.124
+po/galera-ss-0   1/1       Running   0          45m       10.2.6.131   172.16.60.126
+po/galera-ss-1   1/1       Running   0          43m       10.2.14.3    172.16.60.124
+po/galera-ss-2   1/1       Running   0          41m       10.2.3.67    172.16.60.123
+
+
+
+
+[root@node2 mariadb]# mysql -uchinacloud -pchinacloudpw -h 172.16.60.122 -P30000
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 10590
+Server version: 10.1.24-MariaDB MariaDB Server
+
+Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]>
+MariaDB [(none)]>
+MariaDB [(none)]>
+MariaDB [(none)]>
+备注：
+      采用ceph的rbd卷可以保证在集群损坏的情况下不丢失数据库数据， 并且再次创建时能够保证集群数据可用。

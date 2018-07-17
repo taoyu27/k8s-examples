@@ -1,0 +1,63 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    app: mysql
+  namespace: fast-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: hub.chinacloud.com/fast-common/mysql:5.6
+          ports:
+            - name: tcp-3306
+              containerPort: 3306
+              protocol: TCP
+          imagePullPolicy: Always
+          livenessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 50
+            periodSeconds: 30
+          volumeMounts:
+            - name: mysql
+              mountPath: /var/lib/mysql
+            - name: mir-db-init-sql
+              mountPath: /docker-entrypoint-initdb.d/mir-db-init.sql
+              subPath: mir-db-init.sql
+            - name: onex-db-init-sql
+              mountPath: /docker-entrypoint-initdb.d/onex-db-init.sql
+              subPath: onex-db-init.sql
+            - name: wo-db-init-sql
+              mountPath: /docker-entrypoint-initdb.d/wo-db-init.sql
+              subPath: wo-db-init.sql
+          env:
+            - name: "MYSQL_ROOT_PASSWORD"
+              value: "root"
+          # resources:
+          #   limits:
+          #     memory: 512Mi
+          #   requests:
+          #     memory: 256Mi
+      volumes:
+        - name: mysql
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+        - name: mir-db-init-sql
+          configMap:
+            name: mir-db-init-cm
+        - name: onex-db-init-sql
+          configMap:
+            name: onex-db-init-cm
+        - name: wo-db-init-sql
+          configMap:
+            name: wo-db-init-cm

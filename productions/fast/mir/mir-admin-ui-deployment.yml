@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mir-admin-ui-deployment
+  labels:
+   app: mir-admin-ui-deployment
+  namespace: fast-mir
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mir-admin-ui
+  template:
+    metadata:
+      labels:
+        app: mir-admin-ui
+    spec:
+      containers:
+      - name: mir-admin-ui
+        image: hub.chinacloud.com/fast-mir/milestone-mir-admin-ui:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /fast/
+            port: 80
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 80
+        env:
+         - name: KEYCLOAK_REALM
+           value: fast
+         - name: KEYCLOAK_AUTH_SERVER_URl
+           value: http://172.16.74.151:30200/auth
+         - name: KEYCLOAK_RESOURCE
+           value: admin-client
+         - name: KEYCLOAK_SECRET
+           value: c10b49d3-1236-4c20-9d02-7e804fc4d642
+        volumeMounts:
+        - name: mir-admin-ui
+          mountPath: /etc/nginx/conf.d/mir-admin-ui.conf
+          subPath: mir-admin-ui.conf
+      volumes:
+        - name: mir-admin-ui
+          configMap:
+            name: mir-admin-ui-conf-cm

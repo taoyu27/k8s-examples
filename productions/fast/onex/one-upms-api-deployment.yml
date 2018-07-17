@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one-upms-api-deployment
+  labels:
+   app: one-upms-api-deployment
+  namespace: fast-onex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-upms-api
+  template:
+    metadata:
+      labels:
+        app: one-upms-api
+    spec:
+      containers:
+      - name: one-upms-api
+        image: hub.chinacloud.com/fast-onex/milestone-one-upms-api:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9094
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: one-upms-api-conf
+          mountPath: /apps/one-upms-api.conf
+          subPath: onex-conf.conf
+      volumes:
+        - name: one-upms-api-conf
+          configMap:
+            name: onex-conf-cm

@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: solr-controller
+  namespace: default
+  labels:
+    app: solr-controller
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: solr-pod
+    spec:
+      containers:
+      - name: solr-container
+        image: hub.chinacloud.com/catalog/solr:5.5
+        ports:
+        - name: solr
+          containerPort: 8983
+          protocol: TCP
+        - name: stop
+          containerPort: 7983
+          protocol: TCP
+        - name: rmi
+          containerPort: 18983
+          protocol: TCP
+        env:
+        - name: SOLR_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CORE_NAME
+          value: collection1
+        - name: CONFIG_SET
+          value: data_driven_schema_configs
+        - name: DATA_DIR
+          value: data

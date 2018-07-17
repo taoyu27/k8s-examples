@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: activiti-svc
+spec:
+  ports:
+  - name: activiti-svc
+    port: 32403
+    targetPort: 32403
+    nodePort: 19512
+  selector:
+    app: activiti
+  type: NodePort
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: activiti
+spec:
+  replicas: 1
+  template: 
+    metadata:
+      labels:
+        app: activiti
+    spec:
+      containers:
+      - name: activiti
+        image: hub.chinacloud.com/catalog/activiti:5.16.4
+        command: ["/bin/sh","/usr/local/tomcat/bin/catalina.sh","run"]

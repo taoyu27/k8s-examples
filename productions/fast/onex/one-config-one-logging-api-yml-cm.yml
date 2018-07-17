@@ -1,0 +1,30 @@
+apiVersion: v1
+data:
+  one-logging-api.yml: |
+    spring:
+      datasource:
+        platform: mysql
+        url: jdbc:mysql://mysql-svc.fast-common:3306/fast_one_logging?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false
+        username: logging
+        password: 123456
+        tomcat:
+          max-wait: 10000
+          max-active: ${parent.datasource.max-active}
+          test-on-borrow: true
+          initial-size: ${parent.datasource.initial-size}
+          validation-query: SELECT 1
+          remove-abandoned: ${parent.datasource.remove-abandoned}
+          remove-abandoned-timeout: ${parent.datasource.remove-abandoned-timeout}
+          min-evictable-idle-time-millis: ${parent.datasource.min-evictable-idle-time-millis}
+          time-between-eviction-runs-millis: ${parent.datasource.time-between-eviction-runs-millis}
+        driver-class-name: com.mysql.jdbc.Driver
+      jpa:
+        database-platform: org.hibernate.dialect.MySQL5Dialect
+        hibernate:
+          ddl-auto: none
+        show-sql: false
+
+kind: ConfigMap
+metadata:
+  name: one-logging-api-yml-cm
+  namespace: fast-onex

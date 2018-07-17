@@ -1,0 +1,14 @@
+installation
+1. dashborad
+   kubectl apply -f kubernetes-dashboard
+   访问入口：http://master_ip:19530
+2. grafana
+   sh kube.sh start
+   访问入口： http://master_ip:19531   
+   
+3. 导入grafana monitoring ui
+    1) grafana UI
+	2) dashborads-> import(选择grafana-ui里面的json文件) -> Upload.json file -> load
+    
+
+

@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels:
+    app: postgres
+  namespace: fast-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: hub.chinacloud.com/fast-common/postgres:10.1
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          imagePullPolicy: "IfNotPresent"
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 50
+            periodSeconds: 30
+          volumeMounts:
+            - name: postgres
+              mountPath: /var/lib/postgresql/data
+            - name: keycloak-db-init-sql-1
+              mountPath: /docker-entrypoint-initdb.d/keycloak-db-init-1.sql
+              subPath: keycloak-db-init-1.sql
+            - name: keycloak-db-init-sql-2
+              mountPath: /docker-entrypoint-initdb.d/keycloak-db-init-2.sql
+              subPath: keycloak-db-init-2.sql
+          env:
+            - name: "POSTGRES_DB"
+              value: "keycloak"
+            - name: POSTGRES_USER
+              value: "keycloak"
+            - name: POSTGRES_PASSWORD
+              value: "keycloak"
+          # resources:
+          #   limits:
+          #     memory: 512Mi
+          #   requests:
+          #     memory: 256Mi
+      volumes:
+        - name: postgres
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+        - name: keycloak-db-init-sql-1
+          configMap:
+            name: keycloak-db-init-cm-1
+        - name: keycloak-db-init-sql-2
+          configMap:
+            name: keycloak-db-init-cm-2

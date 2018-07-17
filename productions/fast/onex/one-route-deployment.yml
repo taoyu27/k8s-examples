@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one-route-deployment
+  labels:
+   app: one-route-deployment
+  namespace: fast-onex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-route
+  template:
+    metadata:
+      labels:
+        app: one-route
+    spec:
+      containers:
+      - name: one-route
+        image: hub.chinacloud.com/fast-onex/milestone-one-route:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: one-route-conf
+          mountPath: /apps/one-route.conf
+          subPath: onex-conf.conf
+      volumes:
+        - name: one-route-conf
+          configMap:
+            name: onex-conf-cm

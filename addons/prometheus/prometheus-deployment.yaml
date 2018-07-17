@@ -1,0 +1,179 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: prometheus-data
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
+  namespace: kube-system
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-server-conf
+  labels:
+    name: prometheus-server-conf
+  namespace: kube-system
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval: 15s
+      scrape_timeout: 15s
+    rule_files:
+    - /etc/prometheus-rules/*.yml
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+          - targets: ["localhost:9093"]
+
+    scrape_configs:
+    - job_name: 'prometheus'
+      scrape_interval: 5s
+      static_configs:
+        - targets: ['localhost:9090']
+    - job_name: 'kubernetes-node'
+      scheme: http
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - source_labels: [__meta_kubernetes_role]
+        action: replace
+        target_label: kubernetes_role
+      - source_labels: [__address__]
+        regex: '(.*):10250'
+        replacement: '${1}:9100'
+        target_label: __address__
+
+    - job_name: 'fast-metrics'
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+          - mini-metrics:8080
+
+    - job_name: 'node-exporter'
+      scheme: http
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - source_labels: [__meta_kubernetes_role]
+        action: replace
+        target_label: kubernetes_role
+      - source_labels: [__address__]
+        regex: '(.*):10250'
+        replacement: '${1}:9110'
+        target_label: __address__
+
+
+    - job_name: 'ceph-exporter'
+      static_configs:
+        - targets:
+          - ceph-exporter.default:9128
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus
+  annotations:
+    sidecar.istio.io/inject: "false"
+  namespace: kube-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus-server
+    spec:
+      containers:
+        - name: prometheus
+          image: hub.chinacloud.com/prometheus/prometheus:v2.2.1
+          resources:
+            limits:
+              memory: 4096Mi
+              cpu: 1500m
+            requests:
+              cpu: 1500m
+              memory: 4096Mi
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--web.enable-lifecycle"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/
+            - mountPath: /etc/prometheus-rules
+              name: alert-roles
+        - name: alertmanager
+          image: hub.chinacloud.com/prometheus/alertmanager:v0.14.0
+          args:
+            - "--config.file=/etc/alertmanager/config.yml"
+            - "--storage.path=/alertmanager"
+            - "--log.level=debug"
+          ports:
+            - containerPort: 9093
+              protocol: TCP
+              name: http
+          volumeMounts:
+            - name: alertmanager-config-volume
+              mountPath: /etc/alertmanager
+          resources:
+            requests:
+              cpu: 200m
+              memory: 200Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            defaultMode: 420
+            name: prometheus-server-conf
+        - name: alert-roles
+          configMap:
+            name: alert-rules-templates
+        - name: alertmanager-config-volume
+          configMap:
+            name: alertmanager-conf
+        - name: prometheus-storage-volume
+          persistentVolumeClaim:
+            claimName: prometheus-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  namespace: kube-system
+spec:
+  selector:
+    app: prometheus-server
+  type: NodePort
+  ports:
+    - name: prometheus
+      port: 8080
+      targetPort: 9090
+      nodePort: 19520
+    - name: alertmanager
+      port: 9093
+      targetPort: 9093
+      protocol: TCP
+      nodePort: 19523

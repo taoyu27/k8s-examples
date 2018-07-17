@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  wo-conf.conf: |
+    RUN_ARGS="--eurekaUrl=http://one-registry-1-svc.fast-onex:18087/eureka/,http://one-registry-2-svc.fast-onex:18087/eureka/ --logging.config=classpath:logback-spring.xml"
+    JAVA_OPTS="-Xmx512M -Xms256M"
+kind: ConfigMap
+metadata:
+  name: wo-conf-cm
+  namespace: fast-wo

@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: default
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  template:
+    metadata:
+        labels:
+          app: redis
+    spec:
+      containers:
+      - name: redis
+        image: "hub.chinacloud.com/catalog/redis:3.2-alpine"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+          requests:
+            cpu: 10m
+            memory: 500Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redis
+  name: redis
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+  - nodePort: 19502
+    port: 6379
+    name: port-6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    app: redis

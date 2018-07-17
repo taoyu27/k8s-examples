@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  wo-db-init.sql: |
+    -- fast_wo database defination
+    DROP DATABASE IF EXISTS  `fast_wo`;
+    CREATE SCHEMA `fast_wo` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_wo.* to wo@'%' IDENTIFIED BY '123456';
+
+    FLUSH PRIVILEGES;
+kind: ConfigMap
+metadata:
+  name: wo-db-init-cm
+  namespace: fast-common

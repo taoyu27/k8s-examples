@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: blackbox-deployment
+spec:
+  template:
+    metadata:
+      labels:
+        app: blackbox-server
+    spec:
+      containers:
+      - image: hub.chinacloud.com/kubernetes/blackbox-exporter:v0.10.0
+        args:
+          - "--config.file=/etc/blackbox_exporter/blackbox_exporter_conf.yml"
+        name: blackbox-deployment
+        ports:
+          - containerPort: 9115
+            hostPort: 9115
+            name: scrape
+        volumeMounts:
+          - name: blackbox-conf
+            mountPath: /etc/blackbox_exporter
+      nodeSelector:
+        kubernetes.io/hostname: master.com
+      hostNetwork: true
+      hostPID: true
+      volumes:
+      - hostPath:
+          path: /etc/blackbox_exporter
+        name: blackbox-conf

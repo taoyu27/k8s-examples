@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-nfsplugin
+  labels:
+    name: data-nfsplugin
+  annotations:
+    csi.volume.kubernetes.io/volume-attributes: '{"server": "172.16.101.189", "share": "share"}'
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  csi:
+    driver: csi-nfsplugin
+    volumeHandle: data-id
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-nfsplugin
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  selector:
+    matchExpressions:
+    - key: name
+      operator: In
+      values: ["data-nfsplugin"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx 
+spec:
+  containers:
+  - image: hub.chinacloud.com/common/nginx:1.8.1
+    imagePullPolicy: Always
+    name: nginx
+    ports:
+    - containerPort: 80
+      protocol: TCP
+    volumeMounts:
+      - mountPath: /var/www
+        name: data-nfsplugin 
+  volumes:
+  - name: data-nfsplugin
+    persistentVolumeClaim:
+      claimName: data-nfsplugin 

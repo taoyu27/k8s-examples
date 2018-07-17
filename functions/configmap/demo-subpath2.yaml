@@ -1,0 +1,66 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: config
+  namespace: default
+  labels:
+    app: config
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: config
+    spec:
+      nodeSelector:
+        kubetest: "true"
+      containers:
+      - name: config
+        image: hub.chinacloud.com/library/hello-world:1.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe: 
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          #initialDelaySeconds: 60 
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe: 
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          #initialDelaySeconds: 30 
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        env:
+          - name: PROFILE
+            value: "test"
+        ports:
+          - name: http
+            containerPort: 80
+        volumeMounts:
+          - name: config-volume
+            mountPath: /usr/local/testconfig
+            subPath: testconfig
+          - name: volume2
+            mountPath: /home/testconfig2
+            subPath: testconfig2
+      volumes:
+        - name: config-volume
+          configMap:
+            items:
+            - key: test.config
+              path: testconfig
+            name: test
+        - name: volume2
+          configMap:
+            items:
+            - key: test.config2
+              path: testconfig2
+            name: test

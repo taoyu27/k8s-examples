@@ -1,0 +1,52 @@
+apiVersion: v1
+data:
+  mir-db-init.sql: |
+    -- fast_mir_k8s database defination
+    DROP DATABASE IF EXISTS  `fast_mir_application`;
+    CREATE SCHEMA `fast_mir_application` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_mir_application.* to application@'%' IDENTIFIED BY '123456';
+
+
+    -- fast_mir_blueprint database defination
+    DROP DATABASE IF EXISTS  `fast_mir_blueprint`;
+    CREATE SCHEMA `fast_mir_blueprint` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_mir_blueprint.* to blueprint@'%' IDENTIFIED BY '123456';
+
+
+    -- fast_mir_image database defination
+    DROP DATABASE IF EXISTS  `fast_mir_image`;
+    CREATE SCHEMA `fast_mir_image` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_mir_image.* to image@'%' IDENTIFIED BY '123456';
+
+    -- fast_mir_image database defination
+    DROP DATABASE IF EXISTS  `fast_mir_image_builder`;
+    CREATE SCHEMA `fast_mir_image_builder` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_mir_image_builder.* to builder@'%' IDENTIFIED BY '123456';
+
+    -- fast_mir_k8s database defination
+    DROP DATABASE IF EXISTS  `fast_mir_k8s`;
+    CREATE SCHEMA `fast_mir_k8s` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_mir_k8s.* to k8s@'%' IDENTIFIED BY '123456';
+
+    -- fast_mir_namespace database defination
+    DROP DATABASE IF EXISTS  `fast_mir_namespace`;
+    CREATE SCHEMA `fast_mir_namespace` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_mir_namespace.* to namespace@'%' IDENTIFIED BY '123456';
+
+    -- fast_mir_storage database defination
+    DROP DATABASE IF EXISTS  `fast_mir_storage`;
+    CREATE SCHEMA `fast_mir_storage` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+    GRANT ALL ON fast_mir_storage.* to storage@'%' IDENTIFIED BY '123456';
+
+    FLUSH PRIVILEGES;
+kind: ConfigMap
+metadata:
+  name: mir-db-init-cm
+  namespace: fast-common

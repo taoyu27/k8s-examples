@@ -1,0 +1,46 @@
+---
+#########################################################
+##  set namsepaces default  ResourceQuota   ##
+#########################################################
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default-compute-resources
+  namespace: default
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+
+---
+#########################################################
+##  set namsepaces default  ResourceQuota   ##
+#########################################################
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: istio-compute-resources
+  namespace: istio-system
+spec:
+  hard:
+    requests.cpu: "5"
+    requests.memory: 6Gi
+    limits.cpu: "5"
+    limits.memory: 6Gi
+---
+#########################################################
+##  set namsepaces default  ResourceQuota   ##
+#########################################################
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: kube-compute-resources
+  namespace: kube-system
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 24Gi
+    limits.cpu: "20"
+    limits.memory: 24Gi

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-svc
+  namespace: fast-common
+  labels:
+    app: rabbitmq
+spec:
+  ports:
+  - name: rabbitmq
+    port: 15672
+    nodePort: 30203
+    targetPort: 15672
+  - name: rabbitmq1
+    port: 5672
+    nodePort: 30204
+    targetPort: 5672
+  type: NodePort 
+  selector:
+    app: rabbitmq

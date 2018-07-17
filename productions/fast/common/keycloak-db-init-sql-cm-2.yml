@@ -1,0 +1,1945 @@
+apiVersion: v1
+data:
+  keycloak-db-init-2.sql: |
+    -- ----------------------------
+    -- Table structure for t_message_setting
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."t_message_setting";
+    CREATE TABLE "public"."t_message_setting" (
+    "oid" int8 NOT NULL,
+    "create_time" timestamp(6),
+    "create_user" varchar(255) COLLATE "default",
+    "deleted" int4,
+    "last_modify_time" timestamp(6),
+    "last_modify_user" varchar(255) COLLATE "default",
+    "type" varchar(30) COLLATE "default" NOT NULL,
+    "user_id" varchar(255) COLLATE "default" NOT NULL,
+    "receive_mail" bit(1) NOT NULL,
+    "receive_message" bit(1) NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+    
+    -- ----------------------------
+    -- Table structure for realm
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm";
+    CREATE TABLE "public"."realm" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "access_code_lifespan" int4,
+    "user_action_lifespan" int4,
+    "access_token_lifespan" int4,
+    "account_theme" varchar(255) COLLATE "default",
+    "admin_theme" varchar(255) COLLATE "default",
+    "email_theme" varchar(255) COLLATE "default",
+    "enabled" bool DEFAULT false NOT NULL,
+    "events_enabled" bool DEFAULT false NOT NULL,
+    "events_expiration" int8,
+    "login_theme" varchar(255) COLLATE "default",
+    "name" varchar(255) COLLATE "default",
+    "not_before" int4,
+    "password_policy" varchar(2550) COLLATE "default",
+    "registration_allowed" bool DEFAULT false NOT NULL,
+    "remember_me" bool DEFAULT false NOT NULL,
+    "reset_password_allowed" bool DEFAULT false NOT NULL,
+    "social" bool DEFAULT false NOT NULL,
+    "ssl_required" varchar(255) COLLATE "default",
+    "sso_idle_timeout" int4,
+    "sso_max_lifespan" int4,
+    "update_profile_on_soc_login" bool DEFAULT false NOT NULL,
+    "verify_email" bool DEFAULT false NOT NULL,
+    "master_admin_client" varchar(36) COLLATE "default",
+    "login_lifespan" int4,
+    "internationalization_enabled" bool DEFAULT false NOT NULL,
+    "default_locale" varchar(255) COLLATE "default",
+    "reg_email_as_username" bool DEFAULT false NOT NULL,
+    "admin_events_enabled" bool DEFAULT false NOT NULL,
+    "admin_events_details_enabled" bool DEFAULT false NOT NULL,
+    "edit_username_allowed" bool DEFAULT false NOT NULL,
+    "otp_policy_counter" int4 DEFAULT 0,
+    "otp_policy_window" int4 DEFAULT 1,
+    "otp_policy_period" int4 DEFAULT 30,
+    "otp_policy_digits" int4 DEFAULT 6,
+    "otp_policy_alg" varchar(36) COLLATE "default" DEFAULT 'HmacSHA1'::character varying,
+    "otp_policy_type" varchar(36) COLLATE "default" DEFAULT 'totp'::character varying,
+    "browser_flow" varchar(36) COLLATE "default",
+    "registration_flow" varchar(36) COLLATE "default",
+    "direct_grant_flow" varchar(36) COLLATE "default",
+    "reset_credentials_flow" varchar(36) COLLATE "default",
+    "client_auth_flow" varchar(36) COLLATE "default",
+    "offline_session_idle_timeout" int4 DEFAULT 0,
+    "revoke_refresh_token" bool DEFAULT false NOT NULL,
+    "access_token_life_implicit" int4 DEFAULT 0,
+    "login_with_email_allowed" bool DEFAULT true NOT NULL,
+    "duplicate_emails_allowed" bool DEFAULT false NOT NULL,
+    "docker_auth_flow" varchar(36) COLLATE "default",
+    "refresh_token_max_reuse" int4 DEFAULT 0
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm
+    -- ----------------------------
+    INSERT INTO "public"."realm" VALUES ('fast', '60', '1800', '1800', null, null, null, 't', 'f', '0', null, 'fast', '0', null, 'f', 'f', 'f', 'f', 'EXTERNAL', '1800', '36000', 'f', 'f', '3aa03436-5640-4b02-89a1-5b44b79b8a74', '1800', 'f', null, 'f', 'f', 'f', 'f', '0', '1', '30', '6', 'HmacSHA1', 'totp', 'd2b5b423-6410-415d-bcd5-f252ec637cc7', '1af04703-b242-4c0a-b481-ea6d38cfd45d', 'c9d1fa54-89fd-496b-b23c-08311fca6c72', 'bc23f812-93c1-44da-87fb-abd135c7f2d1', '392a61b6-d403-46cb-ba5d-2e8c7c4bae5e', '2592000', 'f', '900', 't', 'f', 'a9c5041c-90d9-4eae-b8be-7720710170cc', '0');
+    INSERT INTO "public"."realm" VALUES ('master', '60', '1800', '1800', null, null, null, 't', 'f', '0', null, 'master', '0', null, 'f', 'f', 'f', 'f', 'EXTERNAL', '1800', '36000', 'f', 'f', '7386e69e-6767-4918-8825-396a63321a38', '1800', 'f', null, 'f', 'f', 'f', 'f', '0', '1', '30', '6', 'HmacSHA1', 'totp', 'cf14df01-c0b1-4cc3-bf5d-c963bd1ad5f6', 'fd8cf4bd-8af1-46a4-a2af-76d65442ccf0', '68700c41-f941-488b-8bad-a5442df55f98', 'ae86c391-a03c-4761-b26d-29b047c5a331', '0f0b86fe-e8f7-4840-8cc3-6a26ea646dd5', '2592000', 'f', '900', 't', 'f', '3e0ee2ab-c1af-4d38-9f38-7cf126734d4b', '0');
+
+    -- ----------------------------
+    -- Table structure for realm_attribute
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm_attribute";
+    CREATE TABLE "public"."realm_attribute" (
+    "name" varchar(255) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default",
+    "realm_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm_attribute
+    -- ----------------------------
+    INSERT INTO "public"."realm_attribute" VALUES ('actionTokenGeneratedByAdminLifespan', '43200', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('actionTokenGeneratedByAdminLifespan', '43200', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('actionTokenGeneratedByUserLifespan', '300', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('actionTokenGeneratedByUserLifespan', '300', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.contentSecurityPolicy', 'frame-src ''self''; frame-ancestors ''self''; object-src ''none'';', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.contentSecurityPolicy', 'frame-src ''self''; frame-ancestors ''self''; object-src ''none'';', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.xContentTypeOptions', 'nosniff', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.xContentTypeOptions', 'nosniff', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.xFrameOptions', 'SAMEORIGIN', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.xFrameOptions', 'SAMEORIGIN', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.xRobotsTag', 'none', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.xRobotsTag', 'none', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.xXSSProtection', '1; mode=block', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('_browser_header.xXSSProtection', '1; mode=block', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('bruteForceProtected', 'false', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('bruteForceProtected', 'false', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('displayName', 'Keycloak', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('displayNameHtml', '<div class="kc-logo-text"><span>Keycloak</span></div>', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('failureFactor', '30', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('failureFactor', '30', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('maxDeltaTimeSeconds', '43200', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('maxDeltaTimeSeconds', '43200', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('maxFailureWaitSeconds', '900', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('maxFailureWaitSeconds', '900', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('minimumQuickLoginWaitSeconds', '60', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('minimumQuickLoginWaitSeconds', '60', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('permanentLockout', 'false', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('permanentLockout', 'false', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('quickLoginCheckMilliSeconds', '1000', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('quickLoginCheckMilliSeconds', '1000', 'master');
+    INSERT INTO "public"."realm_attribute" VALUES ('waitIncrementSeconds', '60', 'fast');
+    INSERT INTO "public"."realm_attribute" VALUES ('waitIncrementSeconds', '60', 'master');
+
+    -- ----------------------------
+    -- Table structure for realm_default_groups
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm_default_groups";
+    CREATE TABLE "public"."realm_default_groups" (
+    "realm_id" varchar(36) COLLATE "default" NOT NULL,
+    "group_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm_default_groups
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for realm_default_roles
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm_default_roles";
+    CREATE TABLE "public"."realm_default_roles" (
+    "realm_id" varchar(36) COLLATE "default" NOT NULL,
+    "role_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm_default_roles
+    -- ----------------------------
+    INSERT INTO "public"."realm_default_roles" VALUES ('fast', '8d6ab25f-276a-4d52-9be1-c18df90b59ca');
+    INSERT INTO "public"."realm_default_roles" VALUES ('fast', 'a891b513-7bcb-413a-a26b-3366366dc79c');
+    INSERT INTO "public"."realm_default_roles" VALUES ('master', '7e933433-7e3b-414c-b028-285535626be5');
+    INSERT INTO "public"."realm_default_roles" VALUES ('master', '8173c612-8722-443f-ad0e-a1e90b1374ca');
+
+    -- ----------------------------
+    -- Table structure for realm_enabled_event_types
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm_enabled_event_types";
+    CREATE TABLE "public"."realm_enabled_event_types" (
+    "realm_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm_enabled_event_types
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for realm_events_listeners
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm_events_listeners";
+    CREATE TABLE "public"."realm_events_listeners" (
+    "realm_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm_events_listeners
+    -- ----------------------------
+    INSERT INTO "public"."realm_events_listeners" VALUES ('fast', 'jboss-logging');
+    INSERT INTO "public"."realm_events_listeners" VALUES ('master', 'jboss-logging');
+
+    -- ----------------------------
+    -- Table structure for realm_required_credential
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm_required_credential";
+    CREATE TABLE "public"."realm_required_credential" (
+    "type" varchar(255) COLLATE "default" NOT NULL,
+    "form_label" varchar(255) COLLATE "default",
+    "input" bool DEFAULT false NOT NULL,
+    "secret" bool DEFAULT false NOT NULL,
+    "realm_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm_required_credential
+    -- ----------------------------
+    INSERT INTO "public"."realm_required_credential" VALUES ('password', 'password', 't', 't', 'fast');
+    INSERT INTO "public"."realm_required_credential" VALUES ('password', 'password', 't', 't', 'master');
+
+    -- ----------------------------
+    -- Table structure for realm_smtp_config
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm_smtp_config";
+    CREATE TABLE "public"."realm_smtp_config" (
+    "realm_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default",
+    "name" varchar(255) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm_smtp_config
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for realm_supported_locales
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."realm_supported_locales";
+    CREATE TABLE "public"."realm_supported_locales" (
+    "realm_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of realm_supported_locales
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for redirect_uris
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."redirect_uris";
+    CREATE TABLE "public"."redirect_uris" (
+    "client_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of redirect_uris
+    -- ----------------------------
+    INSERT INTO "public"."redirect_uris" VALUES ('4e2537a9-da00-47aa-ad7a-a7f97dded71f', 'http://172.16.74.151:30211/fast/*');
+    INSERT INTO "public"."redirect_uris" VALUES ('909b73e7-7a94-49ee-9699-86cb6192e7fb', '/auth/realms/master/account/*');
+    INSERT INTO "public"."redirect_uris" VALUES ('a8555dbe-4973-4695-a649-3b281c6eca4d', 'http://172.16.74.151:30210/fast/*');
+    INSERT INTO "public"."redirect_uris" VALUES ('afcaa9fa-3e77-4335-9891-d7a7e20629b4', '/auth/realms/fast/account/*');
+    INSERT INTO "public"."redirect_uris" VALUES ('b571160e-449e-4ba1-91bc-b9da90ada662', '/auth/admin/master/console/*');
+    INSERT INTO "public"."redirect_uris" VALUES ('b63ab0de-e0e7-4618-bb19-44c51d72df7e', '/auth/admin/fast/console/*');
+
+    -- ----------------------------
+    -- Table structure for required_action_config
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."required_action_config";
+    CREATE TABLE "public"."required_action_config" (
+    "required_action_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" text COLLATE "default",
+    "name" varchar(255) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of required_action_config
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for required_action_provider
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."required_action_provider";
+    CREATE TABLE "public"."required_action_provider" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "alias" varchar(255) COLLATE "default",
+    "name" varchar(255) COLLATE "default",
+    "realm_id" varchar(36) COLLATE "default",
+    "enabled" bool DEFAULT false NOT NULL,
+    "default_action" bool DEFAULT false NOT NULL,
+    "provider_id" varchar(255) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of required_action_provider
+    -- ----------------------------
+    INSERT INTO "public"."required_action_provider" VALUES ('15eed6ca-7c95-4fe7-b395-118aaef606a6', 'UPDATE_PASSWORD', 'Update Password', 'fast', 't', 'f', 'UPDATE_PASSWORD');
+    INSERT INTO "public"."required_action_provider" VALUES ('54da4f9d-d447-4711-9ae3-4609c379a96a', 'CONFIGURE_TOTP', 'Configure OTP', 'fast', 't', 'f', 'CONFIGURE_TOTP');
+    INSERT INTO "public"."required_action_provider" VALUES ('7a0b6538-ffad-48aa-a4fb-680555d0468f', 'terms_and_conditions', 'Terms and Conditions', 'fast', 'f', 'f', 'terms_and_conditions');
+    INSERT INTO "public"."required_action_provider" VALUES ('7e86ad17-1405-404d-a7e4-8a85ec6c0d92', 'VERIFY_EMAIL', 'Verify Email', 'master', 't', 'f', 'VERIFY_EMAIL');
+    INSERT INTO "public"."required_action_provider" VALUES ('8963e9bf-b9e1-4fd2-acae-349b2587f4e4', 'UPDATE_PASSWORD', 'Update Password', 'master', 't', 'f', 'UPDATE_PASSWORD');
+    INSERT INTO "public"."required_action_provider" VALUES ('996f61ae-5082-4c4d-8d1c-6284b260a20c', 'CONFIGURE_TOTP', 'Configure OTP', 'master', 't', 'f', 'CONFIGURE_TOTP');
+    INSERT INTO "public"."required_action_provider" VALUES ('b3617010-fd0a-4114-bc4f-d9fa0433f0db', 'terms_and_conditions', 'Terms and Conditions', 'master', 'f', 'f', 'terms_and_conditions');
+    INSERT INTO "public"."required_action_provider" VALUES ('be087e81-e49e-4b77-af82-1dc4dc2e2298', 'VERIFY_EMAIL', 'Verify Email', 'fast', 't', 'f', 'VERIFY_EMAIL');
+    INSERT INTO "public"."required_action_provider" VALUES ('d2c3e8f1-f917-4e55-913c-5be63edc549d', 'UPDATE_PROFILE', 'Update Profile', 'master', 't', 'f', 'UPDATE_PROFILE');
+    INSERT INTO "public"."required_action_provider" VALUES ('e229e436-166e-4e03-b1a7-93eeecfb82d4', 'UPDATE_PROFILE', 'Update Profile', 'fast', 't', 'f', 'UPDATE_PROFILE');
+
+    -- ----------------------------
+    -- Table structure for resource_policy
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."resource_policy";
+    CREATE TABLE "public"."resource_policy" (
+    "resource_id" varchar(36) COLLATE "default" NOT NULL,
+    "policy_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of resource_policy
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for resource_scope
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."resource_scope";
+    CREATE TABLE "public"."resource_scope" (
+    "resource_id" varchar(36) COLLATE "default" NOT NULL,
+    "scope_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of resource_scope
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for resource_server
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."resource_server";
+    CREATE TABLE "public"."resource_server" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "allow_rs_remote_mgmt" bool DEFAULT false NOT NULL,
+    "policy_enforce_mode" varchar(15) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of resource_server
+    -- ----------------------------
+    INSERT INTO "public"."resource_server" VALUES ('4e2537a9-da00-47aa-ad7a-a7f97dded71f', 'f', '0');
+    INSERT INTO "public"."resource_server" VALUES ('a8555dbe-4973-4695-a649-3b281c6eca4d', 'f', '0');
+
+    -- ----------------------------
+    -- Table structure for resource_server_policy
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."resource_server_policy";
+    CREATE TABLE "public"."resource_server_policy" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "name" varchar(255) COLLATE "default" NOT NULL,
+    "description" varchar(255) COLLATE "default",
+    "type" varchar(255) COLLATE "default" NOT NULL,
+    "decision_strategy" varchar(20) COLLATE "default",
+    "logic" varchar(20) COLLATE "default",
+    "resource_server_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of resource_server_policy
+    -- ----------------------------
+    INSERT INTO "public"."resource_server_policy" VALUES ('3259bebd-829a-4d64-bdb8-304b2b4a80c4', 'Default Policy', 'A policy that grants access only for users within this realm', 'js', '0', '0', 'a8555dbe-4973-4695-a649-3b281c6eca4d');
+    INSERT INTO "public"."resource_server_policy" VALUES ('3fa72299-eee4-445f-985f-bf3b5313d3de', 'Default Policy', 'A policy that grants access only for users within this realm', 'js', '0', '0', '4e2537a9-da00-47aa-ad7a-a7f97dded71f');
+    INSERT INTO "public"."resource_server_policy" VALUES ('6e4f9ae2-880e-484e-b727-0c40c741c518', 'Default Permission', 'A permission that applies to the default resource type', 'resource', '1', '0', '4e2537a9-da00-47aa-ad7a-a7f97dded71f');
+    INSERT INTO "public"."resource_server_policy" VALUES ('7e23da1b-d741-4bb2-970a-4c786e32571c', 'Default Permission', 'A permission that applies to the default resource type', 'resource', '1', '0', 'a8555dbe-4973-4695-a649-3b281c6eca4d');
+
+    -- ----------------------------
+    -- Table structure for resource_server_resource
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."resource_server_resource";
+    CREATE TABLE "public"."resource_server_resource" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "name" varchar(255) COLLATE "default" NOT NULL,
+    "uri" varchar(255) COLLATE "default",
+    "type" varchar(255) COLLATE "default",
+    "icon_uri" varchar(255) COLLATE "default",
+    "owner" varchar(36) COLLATE "default" NOT NULL,
+    "resource_server_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of resource_server_resource
+    -- ----------------------------
+    INSERT INTO "public"."resource_server_resource" VALUES ('08939393-bece-4b77-9b83-f72317b2ab8b', 'Default Resource', '/*', 'urn:admin-client:resources:default', null, 'a8555dbe-4973-4695-a649-3b281c6eca4d', 'a8555dbe-4973-4695-a649-3b281c6eca4d');
+    INSERT INTO "public"."resource_server_resource" VALUES ('c26e9c83-aaa7-4d5e-9d03-bb7e29d2b3e2', 'Default Resource', '/*', 'urn:user-client:resources:default', null, '4e2537a9-da00-47aa-ad7a-a7f97dded71f', '4e2537a9-da00-47aa-ad7a-a7f97dded71f');
+
+    -- ----------------------------
+    -- Table structure for resource_server_scope
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."resource_server_scope";
+    CREATE TABLE "public"."resource_server_scope" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "name" varchar(255) COLLATE "default" NOT NULL,
+    "icon_uri" varchar(255) COLLATE "default",
+    "resource_server_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of resource_server_scope
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for scope_mapping
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."scope_mapping";
+    CREATE TABLE "public"."scope_mapping" (
+    "client_id" varchar(36) COLLATE "default" NOT NULL,
+    "role_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of scope_mapping
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for scope_policy
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."scope_policy";
+    CREATE TABLE "public"."scope_policy" (
+    "scope_id" varchar(36) COLLATE "default" NOT NULL,
+    "policy_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of scope_policy
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for template_scope_mapping
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."template_scope_mapping";
+    CREATE TABLE "public"."template_scope_mapping" (
+    "template_id" varchar(36) COLLATE "default" NOT NULL,
+    "role_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of template_scope_mapping
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_attribute
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_attribute";
+    CREATE TABLE "public"."user_attribute" (
+    "name" varchar(255) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default",
+    "user_id" varchar(36) COLLATE "default" NOT NULL,
+    "id" varchar(36) COLLATE "default" DEFAULT 'sybase-needs-something-here'::character varying NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_attribute
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_consent
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_consent";
+    CREATE TABLE "public"."user_consent" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "client_id" varchar(36) COLLATE "default" NOT NULL,
+    "user_id" varchar(36) COLLATE "default" NOT NULL,
+    "created_date" int8,
+    "last_updated_date" int8
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_consent
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_consent_prot_mapper
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_consent_prot_mapper";
+    CREATE TABLE "public"."user_consent_prot_mapper" (
+    "user_consent_id" varchar(36) COLLATE "default" NOT NULL,
+    "protocol_mapper_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_consent_prot_mapper
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_consent_role
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_consent_role";
+    CREATE TABLE "public"."user_consent_role" (
+    "user_consent_id" varchar(36) COLLATE "default" NOT NULL,
+    "role_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_consent_role
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_entity
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_entity";
+    CREATE TABLE "public"."user_entity" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "email" varchar(255) COLLATE "default",
+    "email_constraint" varchar(255) COLLATE "default",
+    "email_verified" bool DEFAULT false NOT NULL,
+    "enabled" bool DEFAULT false NOT NULL,
+    "federation_link" varchar(255) COLLATE "default",
+    "first_name" varchar(255) COLLATE "default",
+    "last_name" varchar(255) COLLATE "default",
+    "realm_id" varchar(255) COLLATE "default",
+    "username" varchar(255) COLLATE "default",
+    "created_timestamp" int8,
+    "service_account_client_link" varchar(36) COLLATE "default",
+    "not_before" int4 DEFAULT 0 NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_entity
+    -- ----------------------------
+    INSERT INTO "public"."user_entity" VALUES ('3708b7b5-843b-4651-b410-9015373dd790', 'service-account-user-client@placeholder.org', 'service-account-user-client@placeholder.org', 'f', 't', null, null, null, 'fast', 'service-account-user-client', '1522322877662', '4e2537a9-da00-47aa-ad7a-a7f97dded71f', '0');
+    INSERT INTO "public"."user_entity" VALUES ('9ea8dfb9-7a56-4bd0-8fc9-c380501789ff', 'service-account-admin-client@placeholder.org', 'service-account-admin-client@placeholder.org', 'f', 't', null, null, null, 'fast', 'service-account-admin-client', '1522322823320', 'a8555dbe-4973-4695-a649-3b281c6eca4d', '0');
+    INSERT INTO "public"."user_entity" VALUES ('d845700d-5819-4eab-a4af-697fd142a6ee', 'liqiang@chinacloud.com.cn', 'liqiang@chinacloud.com.cn', 'f', 't', null, '李强', null, 'fast', 'liqiang', '1522322917380', null, '0');
+    INSERT INTO "public"."user_entity" VALUES ('d88fa972-1d4d-4ab9-99e8-060d2b66cfb2', null, '8874b6b6-06a1-4663-9f62-278629b3575c', 'f', 't', null, null, null, 'master', 'keycloak', '1522322726559', null, '0');
+
+    -- ----------------------------
+    -- Table structure for user_federation_config
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_federation_config";
+    CREATE TABLE "public"."user_federation_config" (
+    "user_federation_provider_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default",
+    "name" varchar(255) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_federation_config
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_federation_mapper
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_federation_mapper";
+    CREATE TABLE "public"."user_federation_mapper" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "name" varchar(255) COLLATE "default" NOT NULL,
+    "federation_provider_id" varchar(36) COLLATE "default" NOT NULL,
+    "federation_mapper_type" varchar(255) COLLATE "default" NOT NULL,
+    "realm_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_federation_mapper
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_federation_mapper_config
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_federation_mapper_config";
+    CREATE TABLE "public"."user_federation_mapper_config" (
+    "user_federation_mapper_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default",
+    "name" varchar(255) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_federation_mapper_config
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_federation_provider
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_federation_provider";
+    CREATE TABLE "public"."user_federation_provider" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "changed_sync_period" int4,
+    "display_name" varchar(255) COLLATE "default",
+    "full_sync_period" int4,
+    "last_sync" int4,
+    "priority" int4,
+    "provider_name" varchar(255) COLLATE "default",
+    "realm_id" varchar(36) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_federation_provider
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_group_membership
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_group_membership";
+    CREATE TABLE "public"."user_group_membership" (
+    "group_id" varchar(36) COLLATE "default" NOT NULL,
+    "user_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_group_membership
+    -- ----------------------------
+    INSERT INTO "public"."user_group_membership" VALUES ('7660e12a-15c7-481b-a2a7-7033eb35a192', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+
+    -- ----------------------------
+    -- Table structure for user_required_action
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_required_action";
+    CREATE TABLE "public"."user_required_action" (
+    "user_id" varchar(36) COLLATE "default" NOT NULL,
+    "required_action" varchar(255) COLLATE "default" DEFAULT ' '::character varying NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_required_action
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_role_mapping
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_role_mapping";
+    CREATE TABLE "public"."user_role_mapping" (
+    "role_id" varchar(255) COLLATE "default" NOT NULL,
+    "user_id" varchar(36) COLLATE "default" NOT NULL
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_role_mapping
+    -- ----------------------------
+    INSERT INTO "public"."user_role_mapping" VALUES ('01732cf0-908d-406e-a757-56cf6f912954', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('01732cf0-908d-406e-a757-56cf6f912954', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('01732cf0-908d-406e-a757-56cf6f912954', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('0b8236b4-31ca-46b6-a4b9-2d9c4b398311', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('0b8236b4-31ca-46b6-a4b9-2d9c4b398311', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('0b8236b4-31ca-46b6-a4b9-2d9c4b398311', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('10889629-a29a-472b-9e8e-7e7193a81793', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('10889629-a29a-472b-9e8e-7e7193a81793', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('10889629-a29a-472b-9e8e-7e7193a81793', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('1127433c-ae67-4d62-a0ff-3ec27abbb8fe', 'd88fa972-1d4d-4ab9-99e8-060d2b66cfb2');
+    INSERT INTO "public"."user_role_mapping" VALUES ('20cfc659-b8d6-4fc4-adbe-5022f302f998', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('20cfc659-b8d6-4fc4-adbe-5022f302f998', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('20cfc659-b8d6-4fc4-adbe-5022f302f998', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('287dd2c5-8b1d-4eb2-a992-25368fab165a', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('287dd2c5-8b1d-4eb2-a992-25368fab165a', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('287dd2c5-8b1d-4eb2-a992-25368fab165a', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('41b2d08f-4a57-467e-8c97-49855cab8dd6', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('41b2d08f-4a57-467e-8c97-49855cab8dd6', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('41b2d08f-4a57-467e-8c97-49855cab8dd6', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('48f32ac6-70b3-4779-bdef-701fcf0a136d', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('48f32ac6-70b3-4779-bdef-701fcf0a136d', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('48f32ac6-70b3-4779-bdef-701fcf0a136d', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('4ae4c805-12b9-4f6a-b632-84675d1b6d23', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('4ae4c805-12b9-4f6a-b632-84675d1b6d23', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('4ae4c805-12b9-4f6a-b632-84675d1b6d23', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('4da06f34-5ad3-4a8e-8cca-8d6fe5102094', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('4da06f34-5ad3-4a8e-8cca-8d6fe5102094', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('4da06f34-5ad3-4a8e-8cca-8d6fe5102094', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('59746545-116e-4edd-881d-0a2ef4b5a6ac', 'd88fa972-1d4d-4ab9-99e8-060d2b66cfb2');
+    INSERT INTO "public"."user_role_mapping" VALUES ('62604316-e23c-4fae-8448-7b018f373511', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('62604316-e23c-4fae-8448-7b018f373511', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('62604316-e23c-4fae-8448-7b018f373511', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('6ef9d5e3-a707-466d-86e7-e1007b057be3', 'd88fa972-1d4d-4ab9-99e8-060d2b66cfb2');
+    INSERT INTO "public"."user_role_mapping" VALUES ('79493e3e-3a25-442d-a908-8ede8fdf2c49', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('79493e3e-3a25-442d-a908-8ede8fdf2c49', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('79493e3e-3a25-442d-a908-8ede8fdf2c49', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('7e933433-7e3b-414c-b028-285535626be5', 'd88fa972-1d4d-4ab9-99e8-060d2b66cfb2');
+    INSERT INTO "public"."user_role_mapping" VALUES ('8173c612-8722-443f-ad0e-a1e90b1374ca', 'd88fa972-1d4d-4ab9-99e8-060d2b66cfb2');
+    INSERT INTO "public"."user_role_mapping" VALUES ('8d6ab25f-276a-4d52-9be1-c18df90b59ca', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('8d6ab25f-276a-4d52-9be1-c18df90b59ca', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('8d6ab25f-276a-4d52-9be1-c18df90b59ca', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('a0eb7e05-3e73-409b-a88e-a7699759e8d4', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('a891b513-7bcb-413a-a26b-3366366dc79c', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('a891b513-7bcb-413a-a26b-3366366dc79c', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('a891b513-7bcb-413a-a26b-3366366dc79c', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('b3f1e306-366a-443d-877e-e3d8595396e6', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('b3f1e306-366a-443d-877e-e3d8595396e6', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('b3f1e306-366a-443d-877e-e3d8595396e6', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('d36f4f42-5b95-4a94-8bc5-4bcee84eef8f', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('d36f4f42-5b95-4a94-8bc5-4bcee84eef8f', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('d36f4f42-5b95-4a94-8bc5-4bcee84eef8f', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('e00604cf-6664-4973-8ab5-409e6047ebb5', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('e00604cf-6664-4973-8ab5-409e6047ebb5', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('e00604cf-6664-4973-8ab5-409e6047ebb5', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+    INSERT INTO "public"."user_role_mapping" VALUES ('e4ec0b44-66eb-4307-9f30-51fb96e084de', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('ee7c16bb-ee4c-48f6-bb2d-9400eeef78f8', '3708b7b5-843b-4651-b410-9015373dd790');
+    INSERT INTO "public"."user_role_mapping" VALUES ('ee7c16bb-ee4c-48f6-bb2d-9400eeef78f8', '9ea8dfb9-7a56-4bd0-8fc9-c380501789ff');
+    INSERT INTO "public"."user_role_mapping" VALUES ('ee7c16bb-ee4c-48f6-bb2d-9400eeef78f8', 'd845700d-5819-4eab-a4af-697fd142a6ee');
+
+    -- ----------------------------
+    -- Table structure for user_session
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_session";
+    CREATE TABLE "public"."user_session" (
+    "id" varchar(36) COLLATE "default" NOT NULL,
+    "auth_method" varchar(255) COLLATE "default",
+    "ip_address" varchar(255) COLLATE "default",
+    "last_session_refresh" int4,
+    "login_username" varchar(255) COLLATE "default",
+    "realm_id" varchar(255) COLLATE "default",
+    "remember_me" bool DEFAULT false NOT NULL,
+    "started" int4,
+    "user_id" varchar(255) COLLATE "default",
+    "user_session_state" int4,
+    "broker_session_id" varchar(255) COLLATE "default",
+    "broker_user_id" varchar(255) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_session
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for user_session_note
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."user_session_note";
+    CREATE TABLE "public"."user_session_note" (
+    "user_session" varchar(36) COLLATE "default" NOT NULL,
+    "name" varchar(255) COLLATE "default" NOT NULL,
+    "value" varchar(2048) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of user_session_note
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for username_login_failure
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."username_login_failure";
+    CREATE TABLE "public"."username_login_failure" (
+    "realm_id" varchar(36) COLLATE "default" NOT NULL,
+    "username" varchar(255) COLLATE "default" NOT NULL,
+    "failed_login_not_before" int4,
+    "last_failure" int8,
+    "last_ip_failure" varchar(255) COLLATE "default",
+    "num_failures" int4
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of username_login_failure
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Table structure for web_origins
+    -- ----------------------------
+    DROP TABLE IF EXISTS "public"."web_origins";
+    CREATE TABLE "public"."web_origins" (
+    "client_id" varchar(36) COLLATE "default" NOT NULL,
+    "value" varchar(255) COLLATE "default"
+    )
+    WITH (OIDS=FALSE)
+
+    ;
+
+    -- ----------------------------
+    -- Records of web_origins
+    -- ----------------------------
+    INSERT INTO "public"."web_origins" VALUES ('4e2537a9-da00-47aa-ad7a-a7f97dded71f', 'http://172.16.74.151:30211');
+    INSERT INTO "public"."web_origins" VALUES ('a8555dbe-4973-4695-a649-3b281c6eca4d', 'http://172.16.74.151:30210');
+
+    -- ----------------------------
+    -- Alter Sequences Owned By 
+    -- ----------------------------
+
+    -- ----------------------------
+    -- Indexes structure for table associated_policy
+    -- ----------------------------
+    CREATE INDEX "idx_assoc_pol_assoc_pol_id" ON "public"."associated_policy" USING btree ("associated_policy_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table associated_policy
+    -- ----------------------------
+    ALTER TABLE "public"."associated_policy" ADD PRIMARY KEY ("policy_id", "associated_policy_id");
+
+    -- ----------------------------
+    -- Indexes structure for table authentication_execution
+    -- ----------------------------
+    CREATE INDEX "idx_auth_exec_flow" ON "public"."authentication_execution" USING btree ("flow_id");
+    CREATE INDEX "idx_auth_exec_realm_flow" ON "public"."authentication_execution" USING btree ("realm_id", "flow_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table authentication_execution
+    -- ----------------------------
+    ALTER TABLE "public"."authentication_execution" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table authentication_flow
+    -- ----------------------------
+    CREATE INDEX "idx_auth_flow_realm" ON "public"."authentication_flow" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table authentication_flow
+    -- ----------------------------
+    ALTER TABLE "public"."authentication_flow" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table authenticator_config
+    -- ----------------------------
+    CREATE INDEX "idx_auth_config_realm" ON "public"."authenticator_config" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table authenticator_config
+    -- ----------------------------
+    ALTER TABLE "public"."authenticator_config" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table authenticator_config_entry
+    -- ----------------------------
+    ALTER TABLE "public"."authenticator_config_entry" ADD PRIMARY KEY ("authenticator_id", "name");
+
+    -- ----------------------------
+    -- Primary Key structure for table broker_link
+    -- ----------------------------
+    ALTER TABLE "public"."broker_link" ADD PRIMARY KEY ("identity_provider", "user_id");
+
+    -- ----------------------------
+    -- Indexes structure for table client
+    -- ----------------------------
+    CREATE INDEX "idx_client_client_templ_id" ON "public"."client" USING btree ("client_template_id");
+
+    -- ----------------------------
+    -- Uniques structure for table client
+    -- ----------------------------
+    ALTER TABLE "public"."client" ADD UNIQUE ("realm_id", "client_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table client
+    -- ----------------------------
+    ALTER TABLE "public"."client" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_attributes
+    -- ----------------------------
+    ALTER TABLE "public"."client_attributes" ADD PRIMARY KEY ("client_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table client_default_roles
+    -- ----------------------------
+    CREATE INDEX "idx_client_def_roles_client" ON "public"."client_default_roles" USING btree ("client_id");
+
+    -- ----------------------------
+    -- Uniques structure for table client_default_roles
+    -- ----------------------------
+    ALTER TABLE "public"."client_default_roles" ADD UNIQUE ("role_id");
+
+    -- ----------------------------
+    -- Indexes structure for table client_identity_prov_mapping
+    -- ----------------------------
+    CREATE INDEX "idx_client_id_prov_map_client" ON "public"."client_identity_prov_mapping" USING btree ("client_id");
+
+    -- ----------------------------
+    -- Uniques structure for table client_identity_prov_mapping
+    -- ----------------------------
+    ALTER TABLE "public"."client_identity_prov_mapping" ADD UNIQUE ("identity_provider_id", "client_id");
+
+    -- ----------------------------
+    -- Indexes structure for table client_initial_access
+    -- ----------------------------
+    CREATE INDEX "idx_client_init_acc_realm" ON "public"."client_initial_access" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_initial_access
+    -- ----------------------------
+    ALTER TABLE "public"."client_initial_access" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_node_registrations
+    -- ----------------------------
+    ALTER TABLE "public"."client_node_registrations" ADD PRIMARY KEY ("client_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table client_session
+    -- ----------------------------
+    CREATE INDEX "idx_client_session_session" ON "public"."client_session" USING btree ("session_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_session
+    -- ----------------------------
+    ALTER TABLE "public"."client_session" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_session_auth_status
+    -- ----------------------------
+    ALTER TABLE "public"."client_session_auth_status" ADD PRIMARY KEY ("client_session", "authenticator");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_session_note
+    -- ----------------------------
+    ALTER TABLE "public"."client_session_note" ADD PRIMARY KEY ("client_session", "name");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_session_prot_mapper
+    -- ----------------------------
+    ALTER TABLE "public"."client_session_prot_mapper" ADD PRIMARY KEY ("client_session", "protocol_mapper_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_session_role
+    -- ----------------------------
+    ALTER TABLE "public"."client_session_role" ADD PRIMARY KEY ("client_session", "role_id");
+
+    -- ----------------------------
+    -- Uniques structure for table client_template
+    -- ----------------------------
+    ALTER TABLE "public"."client_template" ADD UNIQUE ("realm_id", "name");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_template
+    -- ----------------------------
+    ALTER TABLE "public"."client_template" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_template_attributes
+    -- ----------------------------
+    ALTER TABLE "public"."client_template_attributes" ADD PRIMARY KEY ("template_id", "name");
+
+    -- ----------------------------
+    -- Primary Key structure for table client_user_session_note
+    -- ----------------------------
+    ALTER TABLE "public"."client_user_session_note" ADD PRIMARY KEY ("client_session", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table component
+    -- ----------------------------
+    CREATE INDEX "idx_component_realm" ON "public"."component" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table component
+    -- ----------------------------
+    ALTER TABLE "public"."component" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table component_config
+    -- ----------------------------
+    CREATE INDEX "idx_compo_config_compo" ON "public"."component_config" USING btree ("component_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table component_config
+    -- ----------------------------
+    ALTER TABLE "public"."component_config" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table composite_role
+    -- ----------------------------
+    CREATE INDEX "idx_composite" ON "public"."composite_role" USING btree ("composite");
+    CREATE INDEX "idx_composite_child" ON "public"."composite_role" USING btree ("child_role");
+
+    -- ----------------------------
+    -- Indexes structure for table credential
+    -- ----------------------------
+    CREATE INDEX "idx_user_credential" ON "public"."credential" USING btree ("user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table credential
+    -- ----------------------------
+    ALTER TABLE "public"."credential" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table credential_attribute
+    -- ----------------------------
+    CREATE INDEX "idx_credential_attr_cred" ON "public"."credential_attribute" USING btree ("credential_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table databasechangeloglock
+    -- ----------------------------
+    ALTER TABLE "public"."databasechangeloglock" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table event_entity
+    -- ----------------------------
+    ALTER TABLE "public"."event_entity" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table fed_credential_attribute
+    -- ----------------------------
+    CREATE INDEX "idx_fed_cred_attr_cred" ON "public"."fed_credential_attribute" USING btree ("credential_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table fed_user_attribute
+    -- ----------------------------
+    ALTER TABLE "public"."fed_user_attribute" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table fed_user_consent
+    -- ----------------------------
+    ALTER TABLE "public"."fed_user_consent" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table fed_user_consent_prot_mapper
+    -- ----------------------------
+    ALTER TABLE "public"."fed_user_consent_prot_mapper" ADD PRIMARY KEY ("user_consent_id", "protocol_mapper_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table fed_user_consent_role
+    -- ----------------------------
+    ALTER TABLE "public"."fed_user_consent_role" ADD PRIMARY KEY ("user_consent_id", "role_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table fed_user_credential
+    -- ----------------------------
+    ALTER TABLE "public"."fed_user_credential" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table fed_user_group_membership
+    -- ----------------------------
+    ALTER TABLE "public"."fed_user_group_membership" ADD PRIMARY KEY ("group_id", "user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table fed_user_required_action
+    -- ----------------------------
+    ALTER TABLE "public"."fed_user_required_action" ADD PRIMARY KEY ("required_action", "user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table fed_user_role_mapping
+    -- ----------------------------
+    ALTER TABLE "public"."fed_user_role_mapping" ADD PRIMARY KEY ("role_id", "user_id");
+
+    -- ----------------------------
+    -- Indexes structure for table federated_identity
+    -- ----------------------------
+    CREATE INDEX "idx_fedidentity_feduser" ON "public"."federated_identity" USING btree ("federated_user_id");
+    CREATE INDEX "idx_fedidentity_user" ON "public"."federated_identity" USING btree ("user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table federated_identity
+    -- ----------------------------
+    ALTER TABLE "public"."federated_identity" ADD PRIMARY KEY ("identity_provider", "user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table federated_user
+    -- ----------------------------
+    ALTER TABLE "public"."federated_user" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table group_attribute
+    -- ----------------------------
+    CREATE INDEX "idx_group_attr_group" ON "public"."group_attribute" USING btree ("group_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table group_attribute
+    -- ----------------------------
+    ALTER TABLE "public"."group_attribute" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table group_role_mapping
+    -- ----------------------------
+    CREATE INDEX "idx_group_role_mapp_group" ON "public"."group_role_mapping" USING btree ("group_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table group_role_mapping
+    -- ----------------------------
+    ALTER TABLE "public"."group_role_mapping" ADD PRIMARY KEY ("role_id", "group_id");
+
+    -- ----------------------------
+    -- Indexes structure for table identity_provider
+    -- ----------------------------
+    CREATE INDEX "idx_ident_prov_realm" ON "public"."identity_provider" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Uniques structure for table identity_provider
+    -- ----------------------------
+    ALTER TABLE "public"."identity_provider" ADD UNIQUE ("provider_alias", "realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table identity_provider
+    -- ----------------------------
+    ALTER TABLE "public"."identity_provider" ADD PRIMARY KEY ("internal_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table identity_provider_config
+    -- ----------------------------
+    ALTER TABLE "public"."identity_provider_config" ADD PRIMARY KEY ("identity_provider_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table identity_provider_mapper
+    -- ----------------------------
+    CREATE INDEX "idx_id_prov_mapp_realm" ON "public"."identity_provider_mapper" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table identity_provider_mapper
+    -- ----------------------------
+    ALTER TABLE "public"."identity_provider_mapper" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table idp_mapper_config
+    -- ----------------------------
+    ALTER TABLE "public"."idp_mapper_config" ADD PRIMARY KEY ("idp_mapper_id", "name");
+
+    -- ----------------------------
+    -- Uniques structure for table keycloak_group
+    -- ----------------------------
+    ALTER TABLE "public"."keycloak_group" ADD UNIQUE ("realm_id", "parent_group", "name");
+
+    -- ----------------------------
+    -- Primary Key structure for table keycloak_group
+    -- ----------------------------
+    ALTER TABLE "public"."keycloak_group" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table keycloak_role
+    -- ----------------------------
+    CREATE INDEX "idx_keycloak_role_client" ON "public"."keycloak_role" USING btree ("client");
+    CREATE INDEX "idx_keycloak_role_realm" ON "public"."keycloak_role" USING btree ("realm");
+
+    -- ----------------------------
+    -- Uniques structure for table keycloak_role
+    -- ----------------------------
+    ALTER TABLE "public"."keycloak_role" ADD UNIQUE ("name", "client_realm_constraint");
+
+    -- ----------------------------
+    -- Primary Key structure for table keycloak_role
+    -- ----------------------------
+    ALTER TABLE "public"."keycloak_role" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table migration_model
+    -- ----------------------------
+    ALTER TABLE "public"."migration_model" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table offline_client_session
+    -- ----------------------------
+    CREATE INDEX "idx_us_sess_id_on_cl_sess" ON "public"."offline_client_session" USING btree ("user_session_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table offline_client_session
+    -- ----------------------------
+    ALTER TABLE "public"."offline_client_session" ADD PRIMARY KEY ("user_session_id", "client_id", "offline_flag");
+
+    -- ----------------------------
+    -- Primary Key structure for table offline_user_session
+    -- ----------------------------
+    ALTER TABLE "public"."offline_user_session" ADD PRIMARY KEY ("user_session_id", "offline_flag");
+
+    -- ----------------------------
+    -- Primary Key structure for table policy_config
+    -- ----------------------------
+    ALTER TABLE "public"."policy_config" ADD PRIMARY KEY ("policy_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table protocol_mapper
+    -- ----------------------------
+    CREATE INDEX "idx_proto_mapp_client_templ" ON "public"."protocol_mapper" USING btree ("client_template_id");
+    CREATE INDEX "idx_protocol_mapper_client" ON "public"."protocol_mapper" USING btree ("client_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table protocol_mapper
+    -- ----------------------------
+    ALTER TABLE "public"."protocol_mapper" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table protocol_mapper_config
+    -- ----------------------------
+    ALTER TABLE "public"."protocol_mapper_config" ADD PRIMARY KEY ("protocol_mapper_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table realm
+    -- ----------------------------
+    CREATE INDEX "idx_realm_master_adm_cli" ON "public"."realm" USING btree ("master_admin_client");
+
+    -- ----------------------------
+    -- Uniques structure for table realm
+    -- ----------------------------
+    ALTER TABLE "public"."realm" ADD UNIQUE ("name");
+
+    -- ----------------------------
+    -- Primary Key structure for table realm
+    -- ----------------------------
+    ALTER TABLE "public"."realm" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table realm_attribute
+    -- ----------------------------
+    CREATE INDEX "idx_realm_attr_realm" ON "public"."realm_attribute" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table realm_attribute
+    -- ----------------------------
+    ALTER TABLE "public"."realm_attribute" ADD PRIMARY KEY ("name", "realm_id");
+
+    -- ----------------------------
+    -- Indexes structure for table realm_default_groups
+    -- ----------------------------
+    CREATE INDEX "idx_realm_def_grp_realm" ON "public"."realm_default_groups" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Uniques structure for table realm_default_groups
+    -- ----------------------------
+    ALTER TABLE "public"."realm_default_groups" ADD UNIQUE ("group_id");
+
+    -- ----------------------------
+    -- Indexes structure for table realm_default_roles
+    -- ----------------------------
+    CREATE INDEX "idx_realm_def_roles_realm" ON "public"."realm_default_roles" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Uniques structure for table realm_default_roles
+    -- ----------------------------
+    ALTER TABLE "public"."realm_default_roles" ADD UNIQUE ("role_id");
+
+    -- ----------------------------
+    -- Indexes structure for table realm_enabled_event_types
+    -- ----------------------------
+    CREATE INDEX "idx_realm_evt_types_realm" ON "public"."realm_enabled_event_types" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Indexes structure for table realm_events_listeners
+    -- ----------------------------
+    CREATE INDEX "idx_realm_evt_list_realm" ON "public"."realm_events_listeners" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table realm_required_credential
+    -- ----------------------------
+    ALTER TABLE "public"."realm_required_credential" ADD PRIMARY KEY ("realm_id", "type");
+
+    -- ----------------------------
+    -- Primary Key structure for table realm_smtp_config
+    -- ----------------------------
+    ALTER TABLE "public"."realm_smtp_config" ADD PRIMARY KEY ("realm_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table realm_supported_locales
+    -- ----------------------------
+    CREATE INDEX "idx_realm_supp_local_realm" ON "public"."realm_supported_locales" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Indexes structure for table redirect_uris
+    -- ----------------------------
+    CREATE INDEX "idx_redir_uri_client" ON "public"."redirect_uris" USING btree ("client_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table required_action_config
+    -- ----------------------------
+    ALTER TABLE "public"."required_action_config" ADD PRIMARY KEY ("required_action_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table required_action_provider
+    -- ----------------------------
+    CREATE INDEX "idx_req_act_prov_realm" ON "public"."required_action_provider" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table required_action_provider
+    -- ----------------------------
+    ALTER TABLE "public"."required_action_provider" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table resource_policy
+    -- ----------------------------
+    CREATE INDEX "idx_res_policy_policy" ON "public"."resource_policy" USING btree ("policy_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table resource_policy
+    -- ----------------------------
+    ALTER TABLE "public"."resource_policy" ADD PRIMARY KEY ("resource_id", "policy_id");
+
+    -- ----------------------------
+    -- Indexes structure for table resource_scope
+    -- ----------------------------
+    CREATE INDEX "idx_res_scope_scope" ON "public"."resource_scope" USING btree ("scope_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table resource_scope
+    -- ----------------------------
+    ALTER TABLE "public"."resource_scope" ADD PRIMARY KEY ("resource_id", "scope_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table resource_server
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table resource_server_policy
+    -- ----------------------------
+    CREATE INDEX "idx_res_serv_pol_res_serv" ON "public"."resource_server_policy" USING btree ("resource_server_id");
+
+    -- ----------------------------
+    -- Uniques structure for table resource_server_policy
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_policy" ADD UNIQUE ("name", "resource_server_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table resource_server_policy
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_policy" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table resource_server_resource
+    -- ----------------------------
+    CREATE INDEX "idx_res_srv_res_res_srv" ON "public"."resource_server_resource" USING btree ("resource_server_id");
+
+    -- ----------------------------
+    -- Uniques structure for table resource_server_resource
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_resource" ADD UNIQUE ("name", "owner", "resource_server_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table resource_server_resource
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_resource" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table resource_server_scope
+    -- ----------------------------
+    CREATE INDEX "idx_res_srv_scope_res_srv" ON "public"."resource_server_scope" USING btree ("resource_server_id");
+
+    -- ----------------------------
+    -- Uniques structure for table resource_server_scope
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_scope" ADD UNIQUE ("name", "resource_server_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table resource_server_scope
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_scope" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table scope_mapping
+    -- ----------------------------
+    CREATE INDEX "idx_scope_mapping_role" ON "public"."scope_mapping" USING btree ("role_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table scope_mapping
+    -- ----------------------------
+    ALTER TABLE "public"."scope_mapping" ADD PRIMARY KEY ("client_id", "role_id");
+
+    -- ----------------------------
+    -- Indexes structure for table scope_policy
+    -- ----------------------------
+    CREATE INDEX "idx_scope_policy_policy" ON "public"."scope_policy" USING btree ("policy_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table scope_policy
+    -- ----------------------------
+    ALTER TABLE "public"."scope_policy" ADD PRIMARY KEY ("scope_id", "policy_id");
+
+    -- ----------------------------
+    -- Indexes structure for table template_scope_mapping
+    -- ----------------------------
+    CREATE INDEX "idx_templ_scope_mapp_role" ON "public"."template_scope_mapping" USING btree ("role_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table template_scope_mapping
+    -- ----------------------------
+    ALTER TABLE "public"."template_scope_mapping" ADD PRIMARY KEY ("template_id", "role_id");
+
+    -- ----------------------------
+    -- Indexes structure for table user_attribute
+    -- ----------------------------
+    CREATE INDEX "idx_user_attribute" ON "public"."user_attribute" USING btree ("user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_attribute
+    -- ----------------------------
+    ALTER TABLE "public"."user_attribute" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table user_consent
+    -- ----------------------------
+    CREATE INDEX "idx_user_consent" ON "public"."user_consent" USING btree ("user_id");
+
+    -- ----------------------------
+    -- Uniques structure for table user_consent
+    -- ----------------------------
+    ALTER TABLE "public"."user_consent" ADD UNIQUE ("client_id", "user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_consent
+    -- ----------------------------
+    ALTER TABLE "public"."user_consent" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table user_consent_prot_mapper
+    -- ----------------------------
+    CREATE INDEX "idx_consent_protmapper" ON "public"."user_consent_prot_mapper" USING btree ("user_consent_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_consent_prot_mapper
+    -- ----------------------------
+    ALTER TABLE "public"."user_consent_prot_mapper" ADD PRIMARY KEY ("user_consent_id", "protocol_mapper_id");
+
+    -- ----------------------------
+    -- Indexes structure for table user_consent_role
+    -- ----------------------------
+    CREATE INDEX "idx_consent_role" ON "public"."user_consent_role" USING btree ("user_consent_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_consent_role
+    -- ----------------------------
+    ALTER TABLE "public"."user_consent_role" ADD PRIMARY KEY ("user_consent_id", "role_id");
+
+    -- ----------------------------
+    -- Indexes structure for table user_entity
+    -- ----------------------------
+    CREATE INDEX "idx_user_email" ON "public"."user_entity" USING btree ("email");
+
+    -- ----------------------------
+    -- Uniques structure for table user_entity
+    -- ----------------------------
+    ALTER TABLE "public"."user_entity" ADD UNIQUE ("realm_id", "email_constraint");
+    ALTER TABLE "public"."user_entity" ADD UNIQUE ("realm_id", "username");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_entity
+    -- ----------------------------
+    ALTER TABLE "public"."user_entity" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_federation_config
+    -- ----------------------------
+    ALTER TABLE "public"."user_federation_config" ADD PRIMARY KEY ("user_federation_provider_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table user_federation_mapper
+    -- ----------------------------
+    CREATE INDEX "idx_usr_fed_map_fed_prv" ON "public"."user_federation_mapper" USING btree ("federation_provider_id");
+    CREATE INDEX "idx_usr_fed_map_realm" ON "public"."user_federation_mapper" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_federation_mapper
+    -- ----------------------------
+    ALTER TABLE "public"."user_federation_mapper" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_federation_mapper_config
+    -- ----------------------------
+    ALTER TABLE "public"."user_federation_mapper_config" ADD PRIMARY KEY ("user_federation_mapper_id", "name");
+
+    -- ----------------------------
+    -- Indexes structure for table user_federation_provider
+    -- ----------------------------
+    CREATE INDEX "idx_usr_fed_prv_realm" ON "public"."user_federation_provider" USING btree ("realm_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_federation_provider
+    -- ----------------------------
+    ALTER TABLE "public"."user_federation_provider" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Indexes structure for table user_group_membership
+    -- ----------------------------
+    CREATE INDEX "idx_user_group_mapping" ON "public"."user_group_membership" USING btree ("user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_group_membership
+    -- ----------------------------
+    ALTER TABLE "public"."user_group_membership" ADD PRIMARY KEY ("group_id", "user_id");
+
+    -- ----------------------------
+    -- Indexes structure for table user_required_action
+    -- ----------------------------
+    CREATE INDEX "idx_user_reqactions" ON "public"."user_required_action" USING btree ("user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_required_action
+    -- ----------------------------
+    ALTER TABLE "public"."user_required_action" ADD PRIMARY KEY ("required_action", "user_id");
+
+    -- ----------------------------
+    -- Indexes structure for table user_role_mapping
+    -- ----------------------------
+    CREATE INDEX "idx_user_role_mapping" ON "public"."user_role_mapping" USING btree ("user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_role_mapping
+    -- ----------------------------
+    ALTER TABLE "public"."user_role_mapping" ADD PRIMARY KEY ("role_id", "user_id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_session
+    -- ----------------------------
+    ALTER TABLE "public"."user_session" ADD PRIMARY KEY ("id");
+
+    -- ----------------------------
+    -- Primary Key structure for table user_session_note
+    -- ----------------------------
+    ALTER TABLE "public"."user_session_note" ADD PRIMARY KEY ("user_session", "name");
+
+    -- ----------------------------
+    -- Primary Key structure for table username_login_failure
+    -- ----------------------------
+    ALTER TABLE "public"."username_login_failure" ADD PRIMARY KEY ("realm_id", "username");
+
+    -- ----------------------------
+    -- Indexes structure for table web_origins
+    -- ----------------------------
+    CREATE INDEX "idx_web_orig_client" ON "public"."web_origins" USING btree ("client_id");
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."associated_policy"
+    -- ----------------------------
+    ALTER TABLE "public"."associated_policy" ADD FOREIGN KEY ("policy_id") REFERENCES "public"."resource_server_policy" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."associated_policy" ADD FOREIGN KEY ("associated_policy_id") REFERENCES "public"."resource_server_policy" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."authentication_execution"
+    -- ----------------------------
+    ALTER TABLE "public"."authentication_execution" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."authentication_execution" ADD FOREIGN KEY ("flow_id") REFERENCES "public"."authentication_flow" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."authentication_flow"
+    -- ----------------------------
+    ALTER TABLE "public"."authentication_flow" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."authenticator_config"
+    -- ----------------------------
+    ALTER TABLE "public"."authenticator_config" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client"
+    -- ----------------------------
+    ALTER TABLE "public"."client" ADD FOREIGN KEY ("client_template_id") REFERENCES "public"."client_template" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."client" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_attributes"
+    -- ----------------------------
+    ALTER TABLE "public"."client_attributes" ADD FOREIGN KEY ("client_id") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_default_roles"
+    -- ----------------------------
+    ALTER TABLE "public"."client_default_roles" ADD FOREIGN KEY ("client_id") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."client_default_roles" ADD FOREIGN KEY ("role_id") REFERENCES "public"."keycloak_role" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_identity_prov_mapping"
+    -- ----------------------------
+    ALTER TABLE "public"."client_identity_prov_mapping" ADD FOREIGN KEY ("identity_provider_id") REFERENCES "public"."identity_provider" ("internal_id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."client_identity_prov_mapping" ADD FOREIGN KEY ("client_id") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_initial_access"
+    -- ----------------------------
+    ALTER TABLE "public"."client_initial_access" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_node_registrations"
+    -- ----------------------------
+    ALTER TABLE "public"."client_node_registrations" ADD FOREIGN KEY ("client_id") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_session"
+    -- ----------------------------
+    ALTER TABLE "public"."client_session" ADD FOREIGN KEY ("session_id") REFERENCES "public"."user_session" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_session_auth_status"
+    -- ----------------------------
+    ALTER TABLE "public"."client_session_auth_status" ADD FOREIGN KEY ("client_session") REFERENCES "public"."client_session" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_session_note"
+    -- ----------------------------
+    ALTER TABLE "public"."client_session_note" ADD FOREIGN KEY ("client_session") REFERENCES "public"."client_session" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_session_prot_mapper"
+    -- ----------------------------
+    ALTER TABLE "public"."client_session_prot_mapper" ADD FOREIGN KEY ("client_session") REFERENCES "public"."client_session" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_session_role"
+    -- ----------------------------
+    ALTER TABLE "public"."client_session_role" ADD FOREIGN KEY ("client_session") REFERENCES "public"."client_session" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_template"
+    -- ----------------------------
+    ALTER TABLE "public"."client_template" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_template_attributes"
+    -- ----------------------------
+    ALTER TABLE "public"."client_template_attributes" ADD FOREIGN KEY ("template_id") REFERENCES "public"."client_template" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."client_user_session_note"
+    -- ----------------------------
+    ALTER TABLE "public"."client_user_session_note" ADD FOREIGN KEY ("client_session") REFERENCES "public"."client_session" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."component"
+    -- ----------------------------
+    ALTER TABLE "public"."component" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."component_config"
+    -- ----------------------------
+    ALTER TABLE "public"."component_config" ADD FOREIGN KEY ("component_id") REFERENCES "public"."component" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."composite_role"
+    -- ----------------------------
+    ALTER TABLE "public"."composite_role" ADD FOREIGN KEY ("child_role") REFERENCES "public"."keycloak_role" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."composite_role" ADD FOREIGN KEY ("composite") REFERENCES "public"."keycloak_role" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."credential"
+    -- ----------------------------
+    ALTER TABLE "public"."credential" ADD FOREIGN KEY ("user_id") REFERENCES "public"."user_entity" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."credential_attribute"
+    -- ----------------------------
+    ALTER TABLE "public"."credential_attribute" ADD FOREIGN KEY ("credential_id") REFERENCES "public"."credential" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."fed_credential_attribute"
+    -- ----------------------------
+    ALTER TABLE "public"."fed_credential_attribute" ADD FOREIGN KEY ("credential_id") REFERENCES "public"."fed_user_credential" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."federated_identity"
+    -- ----------------------------
+    ALTER TABLE "public"."federated_identity" ADD FOREIGN KEY ("user_id") REFERENCES "public"."user_entity" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."group_attribute"
+    -- ----------------------------
+    ALTER TABLE "public"."group_attribute" ADD FOREIGN KEY ("group_id") REFERENCES "public"."keycloak_group" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."group_role_mapping"
+    -- ----------------------------
+    ALTER TABLE "public"."group_role_mapping" ADD FOREIGN KEY ("group_id") REFERENCES "public"."keycloak_group" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."group_role_mapping" ADD FOREIGN KEY ("role_id") REFERENCES "public"."keycloak_role" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."identity_provider"
+    -- ----------------------------
+    ALTER TABLE "public"."identity_provider" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."identity_provider_config"
+    -- ----------------------------
+    ALTER TABLE "public"."identity_provider_config" ADD FOREIGN KEY ("identity_provider_id") REFERENCES "public"."identity_provider" ("internal_id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."identity_provider_mapper"
+    -- ----------------------------
+    ALTER TABLE "public"."identity_provider_mapper" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."idp_mapper_config"
+    -- ----------------------------
+    ALTER TABLE "public"."idp_mapper_config" ADD FOREIGN KEY ("idp_mapper_id") REFERENCES "public"."identity_provider_mapper" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."keycloak_group"
+    -- ----------------------------
+    ALTER TABLE "public"."keycloak_group" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."keycloak_role"
+    -- ----------------------------
+    ALTER TABLE "public"."keycloak_role" ADD FOREIGN KEY ("realm") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."keycloak_role" ADD FOREIGN KEY ("client") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."policy_config"
+    -- ----------------------------
+    ALTER TABLE "public"."policy_config" ADD FOREIGN KEY ("policy_id") REFERENCES "public"."resource_server_policy" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."protocol_mapper"
+    -- ----------------------------
+    ALTER TABLE "public"."protocol_mapper" ADD FOREIGN KEY ("client_id") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."protocol_mapper" ADD FOREIGN KEY ("client_template_id") REFERENCES "public"."client_template" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."protocol_mapper_config"
+    -- ----------------------------
+    ALTER TABLE "public"."protocol_mapper_config" ADD FOREIGN KEY ("protocol_mapper_id") REFERENCES "public"."protocol_mapper" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm"
+    -- ----------------------------
+    ALTER TABLE "public"."realm" ADD FOREIGN KEY ("master_admin_client") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm_attribute"
+    -- ----------------------------
+    ALTER TABLE "public"."realm_attribute" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm_default_groups"
+    -- ----------------------------
+    ALTER TABLE "public"."realm_default_groups" ADD FOREIGN KEY ("group_id") REFERENCES "public"."keycloak_group" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."realm_default_groups" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm_default_roles"
+    -- ----------------------------
+    ALTER TABLE "public"."realm_default_roles" ADD FOREIGN KEY ("role_id") REFERENCES "public"."keycloak_role" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."realm_default_roles" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm_enabled_event_types"
+    -- ----------------------------
+    ALTER TABLE "public"."realm_enabled_event_types" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm_events_listeners"
+    -- ----------------------------
+    ALTER TABLE "public"."realm_events_listeners" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm_required_credential"
+    -- ----------------------------
+    ALTER TABLE "public"."realm_required_credential" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm_smtp_config"
+    -- ----------------------------
+    ALTER TABLE "public"."realm_smtp_config" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."realm_supported_locales"
+    -- ----------------------------
+    ALTER TABLE "public"."realm_supported_locales" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."redirect_uris"
+    -- ----------------------------
+    ALTER TABLE "public"."redirect_uris" ADD FOREIGN KEY ("client_id") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."required_action_provider"
+    -- ----------------------------
+    ALTER TABLE "public"."required_action_provider" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."resource_policy"
+    -- ----------------------------
+    ALTER TABLE "public"."resource_policy" ADD FOREIGN KEY ("policy_id") REFERENCES "public"."resource_server_policy" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."resource_policy" ADD FOREIGN KEY ("resource_id") REFERENCES "public"."resource_server_resource" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."resource_scope"
+    -- ----------------------------
+    ALTER TABLE "public"."resource_scope" ADD FOREIGN KEY ("scope_id") REFERENCES "public"."resource_server_scope" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."resource_scope" ADD FOREIGN KEY ("resource_id") REFERENCES "public"."resource_server_resource" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."resource_server_policy"
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_policy" ADD FOREIGN KEY ("resource_server_id") REFERENCES "public"."resource_server" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."resource_server_resource"
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_resource" ADD FOREIGN KEY ("resource_server_id") REFERENCES "public"."resource_server" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."resource_server_scope"
+    -- ----------------------------
+    ALTER TABLE "public"."resource_server_scope" ADD FOREIGN KEY ("resource_server_id") REFERENCES "public"."resource_server" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."scope_mapping"
+    -- ----------------------------
+    ALTER TABLE "public"."scope_mapping" ADD FOREIGN KEY ("client_id") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."scope_mapping" ADD FOREIGN KEY ("role_id") REFERENCES "public"."keycloak_role" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."scope_policy"
+    -- ----------------------------
+    ALTER TABLE "public"."scope_policy" ADD FOREIGN KEY ("scope_id") REFERENCES "public"."resource_server_scope" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."scope_policy" ADD FOREIGN KEY ("policy_id") REFERENCES "public"."resource_server_policy" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."template_scope_mapping"
+    -- ----------------------------
+    ALTER TABLE "public"."template_scope_mapping" ADD FOREIGN KEY ("role_id") REFERENCES "public"."keycloak_role" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."template_scope_mapping" ADD FOREIGN KEY ("template_id") REFERENCES "public"."client_template" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_attribute"
+    -- ----------------------------
+    ALTER TABLE "public"."user_attribute" ADD FOREIGN KEY ("user_id") REFERENCES "public"."user_entity" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_consent"
+    -- ----------------------------
+    ALTER TABLE "public"."user_consent" ADD FOREIGN KEY ("user_id") REFERENCES "public"."user_entity" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_consent_prot_mapper"
+    -- ----------------------------
+    ALTER TABLE "public"."user_consent_prot_mapper" ADD FOREIGN KEY ("user_consent_id") REFERENCES "public"."user_consent" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_consent_role"
+    -- ----------------------------
+    ALTER TABLE "public"."user_consent_role" ADD FOREIGN KEY ("user_consent_id") REFERENCES "public"."user_consent" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_federation_config"
+    -- ----------------------------
+    ALTER TABLE "public"."user_federation_config" ADD FOREIGN KEY ("user_federation_provider_id") REFERENCES "public"."user_federation_provider" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_federation_mapper"
+    -- ----------------------------
+    ALTER TABLE "public"."user_federation_mapper" ADD FOREIGN KEY ("federation_provider_id") REFERENCES "public"."user_federation_provider" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ALTER TABLE "public"."user_federation_mapper" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_federation_mapper_config"
+    -- ----------------------------
+    ALTER TABLE "public"."user_federation_mapper_config" ADD FOREIGN KEY ("user_federation_mapper_id") REFERENCES "public"."user_federation_mapper" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_federation_provider"
+    -- ----------------------------
+    ALTER TABLE "public"."user_federation_provider" ADD FOREIGN KEY ("realm_id") REFERENCES "public"."realm" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_group_membership"
+    -- ----------------------------
+    ALTER TABLE "public"."user_group_membership" ADD FOREIGN KEY ("user_id") REFERENCES "public"."user_entity" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_required_action"
+    -- ----------------------------
+    ALTER TABLE "public"."user_required_action" ADD FOREIGN KEY ("user_id") REFERENCES "public"."user_entity" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_role_mapping"
+    -- ----------------------------
+    ALTER TABLE "public"."user_role_mapping" ADD FOREIGN KEY ("user_id") REFERENCES "public"."user_entity" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."user_session_note"
+    -- ----------------------------
+    ALTER TABLE "public"."user_session_note" ADD FOREIGN KEY ("user_session") REFERENCES "public"."user_session" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+    -- ----------------------------
+    -- Foreign Key structure for table "public"."web_origins"
+    -- ----------------------------
+    ALTER TABLE "public"."web_origins" ADD FOREIGN KEY ("client_id") REFERENCES "public"."client" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+kind: ConfigMap
+metadata:
+  name: keycloak-db-init-cm-2
+  namespace: fast-common

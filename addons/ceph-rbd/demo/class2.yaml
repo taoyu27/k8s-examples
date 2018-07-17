@@ -1,0 +1,17 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: rbd2
+provisioner: ceph.com/rbd2
+parameters:
+  monitors: 172.16.71.109:6789
+  pool: kube
+  adminId: admin
+  adminSecretNamespace: kube-system
+  adminSecretName: ceph-admin-secret2
+  userId: kube
+  userSecretName: ceph-secret2
+  #Supported formats: 1,2 
+  imageFormat: "2"
+  #supported feature: layering,exclusive-lock,object-map,fast-diff,deep-flatten
+  imageFeatures: layering

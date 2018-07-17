@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: one-oss-api-svc
+  namespace: fast-onex
+  labels:
+    app: one-oss-api-svc
+spec:
+  ports:
+    - name: tcp-8888
+      port: 8080
+      targetPort: 8080
+  selector:
+      app: one-oss-api

@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hello-vol
+  namespace: default
+  labels:
+    app: hello-vol
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: hello-vol
+    spec:
+      containers:
+      - name: hello-vol
+        image: hub.chinacloud.com/library/hello-world:1.0
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: PROFILE
+            value: "test"
+        ports:
+          - name: http
+            containerPort: 80
+        volumeMounts:
+          - name: nfs-pvc
+            mountPath: "/mnt"
+      volumes:
+        - name: nfs-pvc
+          persistentVolumeClaim:
+            claimName: claim

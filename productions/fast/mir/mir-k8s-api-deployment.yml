@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mir-k8s-api-deployment
+  labels:
+   app: mir-k8s-api-deployment
+  namespace: fast-mir
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mir-k8s-api
+  template:
+    metadata:
+      labels:
+        app: mir-k8s-api
+    spec:
+      containers:
+      - name: mir-k8s-api
+        image: hub.chinacloud.com/fast-mir/milestone-mir-k8s-api:20180418
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 50
+          periodSeconds: 30
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: mir-k8s-api-conf
+          mountPath: /apps/mir-k8s-api.conf
+          subPath: mir-conf.conf
+      volumes:
+        - name: mir-k8s-api-conf
+          configMap:
+            name: mir-conf-cm

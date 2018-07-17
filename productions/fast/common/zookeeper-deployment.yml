@@ -1,0 +1,44 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zookeeper-deployment
+  labels:
+    app: zookeeper
+  namespace: fast-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: hub.chinacloud.com/fast-common/zookeeper:3.4.10
+          imagePullPolicy: Always
+          livenessProbe:
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 50
+            periodSeconds: 30
+          ports:
+            - name: zookeeper
+              containerPort: 2181
+              protocol: TCP
+            - name: zookeeper1
+              containerPort: 2888
+              protocol: TCP
+            - name: zookeeper2
+              containerPort: 3888
+              protocol: TCP
+          env:
+            - name: "restart"
+              value: "always"
+          # resources:
+          #   limits:
+          #     memory: 512Mi
+          #   requests:
+          #     memory: 256Mi
